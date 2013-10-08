@@ -1,0 +1,43 @@
+[user]
+	name = JaviLorbada
+	email = javugi@gmail.com
+[github]
+    user = JaviLorbada
+[core]
+	excludesfile = /Users/javierlorbada/.gitignore_global
+	autocrlf = false
+	safecrlf = false
+	quotepath = false
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
+[color]
+  	branch = auto
+  	diff = auto
+  	status = auto
+	ui = true
+[alias]
+  	a = add .
+  	co = checkout
+  	cm = commit -m
+	ca = commit -a
+	ci = commit -am
+  	st = status
+  	s = status -sb
+  	br = branch
+  	brd = branch -d
+  	ss = stash save
+	sp = stash pop
+	us = submodule update --recursive
+	p = push
+	pu = push -u
+  	hist = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+	hist2 = log --graph --pretty='%C(yellow)%h (%cr) |%Cred %an%C(white)%d%Creset %s'
+  	type = cat-file -t
+  	dump = cat-file -p
+	mf = merge --no-ff
+[push]
+	default = simple
