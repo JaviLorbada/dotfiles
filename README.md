@@ -20,3 +20,9 @@ By far the easiest way to install both Git and git-completion is via [Homebrew](
         if [ -f `brew --prefix`/etc/bash_completion ]; then
             . `brew --prefix`/etc/bash_completion
         fi
+
+## Contact:
+
+- [Javi Lorbada](mailto:javugi@gmail.com) 
+- Follow [@javi_lorbada](https://twitter.com/javi_lorbada) on twitter
+- http://javilorbada.me/
