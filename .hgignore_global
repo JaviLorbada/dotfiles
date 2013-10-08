@@ -1,0 +1,8 @@
+syntax: glob
+
+*~
+.DS_Store
+contents.xcworkspacedata*
+UserInterfaceState.xcuserstate*
+xcschememanagement.plist*
+Breakpoints.xcbkptlist*
