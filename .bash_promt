@@ -1,0 +1,28 @@
+# Colors
+RED="\[\033[0;31m\]"
+YELLOW="\[\033[0;33m\]"
+GREEN="\[\033[0;32m\]"
+MAGENTA="="\[\033[1;31m\]"
+ORANGE="="\[\033[1;33m\]"
+PURPLE="="\[\033[1;35m\]"
+WHITE="="\[\033[1;37m\]"
+BOLD=""
+RESET="="\[\033[m\]"
+
+# Git
+# enable the git bash completion commands, should have homebrew
+if [ -f `brew --prefix`/etc/bash_completion ]; then
+    . `brew --prefix`/etc/bash_completion
+fi
+
+gc() {
+  git add .
+  git commit -am "$*"
+}
+
+# wo = workspace
+wo() {
+  # code_dir=~/Desktop/JaviLorbada/StashRepos/
+  code_dir=~/Desktop/JaviLorbada/Workspace/
+  cd $(find $code_dir -type d -maxdepth 3 | grep -i $* | grep -v /Pods --max-count=1)
+}
