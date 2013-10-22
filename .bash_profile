@@ -1,5 +1,3 @@
-export PS1='\u@\H \w\$ '
-
 # Load ~/.bash_prompt and ~/.aliases 
 for file in ~/.{bash_prompt,aliases}; do
         [ -r "$file" ] && source "$file"
