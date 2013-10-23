@@ -22,7 +22,7 @@ gc() {
 
 # wo = workspace
 wo() {
-  # code_dir=~/Desktop/JaviLorbada/StashRepos/
-  code_dir=~/Desktop/Workspace/
+  code_dir=~/Desktop/JaviLorbada/StashRepos/
+  # code_dir=~/Desktop/Workspace/
   cd $(find $code_dir -type d -maxdepth 3 | grep -i $* | grep -v /Pods --max-count=1)
 }
