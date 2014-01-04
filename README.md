@@ -1,4 +1,4 @@
-.dotfiles
+.dotfiles [![License MIT](http://b.repl.ca/v1/License-MIT-blue.png)](https://github.com/JaviLorbada/JLTMDbClient/blob/master/LICENSE)
 ========
 
 My terminal dotfiles / setup
@@ -7,7 +7,7 @@ My terminal dotfiles / setup
 git-flow completion requires git-completion to work. How exactly you go about installing git-completion varies wildly from system to system, so it's hard to give exact installation instructions. 
 
 
-## OS X
+## OS X:
 
 By far the easiest way to install both Git and git-completion is via [Homebrew](http://mxcl.github.com/homebrew/), so you should pick that one.
 
@@ -20,6 +20,23 @@ By far the easiest way to install both Git and git-completion is via [Homebrew](
         if [ -f `brew --prefix`/etc/bash_completion ]; then
             . `brew --prefix`/etc/bash_completion
         fi
+
+## Install guide:
+
+1. Clone `git clone https://github.com/JaviLorbada/dotfiles`
+2. Run `cd dotfiles`
+3. Run `install.sh`
+
+You may want to add your name `~/.dotfiles/.gitconfig`
+
+```
+[user]
+    name = JaviLorbada
+    email = javugi@gmail.com
+[github]
+    user = JaviLorbada
+    username = JaviLorbada
+```
 
 ## Contact:
 
