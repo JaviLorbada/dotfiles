@@ -1,3 +1,6 @@
+export PATH=/usr/local/bin:$PATH
+export EDITOR="vim"
+
 # Load ~/.bash_prompt and ~/.aliases 
 for file in ~/.{bash_prompt,aliases}; do
         [ -r "$file" ] && source "$file"
