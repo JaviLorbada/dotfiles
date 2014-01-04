@@ -4,7 +4,6 @@ alias ...="cd ../.."
 alias l="ls -Gl" # All files colorized.
 alias la="ls -Glah" # All files colorized, including dot files.
 alias lsd='ls -l | grep "^d"' # Only all directories.
-alias g="git"
 alias v="vim"
 alias o="open"
 alias op="open ."
@@ -13,6 +12,10 @@ alias b="cd ~/Box\ Documents/"
 alias dt="cd ~/Desktop"
 alias sudo='sudo ' # Enable aliases to be sudo’ed
 alias rl="source ~/.bash_profile"
+
+# Processes
+alias tu='top -o cpu' # processes sorted by CPU
+alias tm='top -o vsize' # processes sorted by Memory
 
 # Show/hide hidden files in Finder
 alias show="defaults write com.apple.Finder AppleShowAllFiles -bool true && killall Finder"
@@ -23,6 +26,7 @@ alias hidedesktop="defaults write com.apple.finder CreateDesktop -bool false && 
 alias showdesktop="defaults write com.apple.finder CreateDesktop -bool true && killall Finder"
 
 # Git Aliases
+alias g="git"
 alias gcl="git clone --recursive"
 alias gco="git co"
 alias go="git co"
@@ -38,4 +42,5 @@ alias gm="git merge"
 alias gt="git tag"
 alias grst="git reset --hard"
 alias grv="git remote -v"
+alias gd='git diff'
 
