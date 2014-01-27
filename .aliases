@@ -7,6 +7,7 @@ alias lsd='ls -l | grep "^d"' # Only all directories.
 alias v="vim"
 alias o="open"
 alias op="open ."
+alias ops="op -a 'Sublime Text'"
 alias d="cd ~/Dropbox"
 alias b="cd ~/Box\ Documents/"
 alias dt="cd ~/Desktop"
@@ -43,4 +44,3 @@ alias gt="git tag"
 alias grst="git reset --hard"
 alias grv="git remote -v"
 alias gd='git diff'
-
