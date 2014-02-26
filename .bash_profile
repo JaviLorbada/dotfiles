@@ -1,5 +1,8 @@
 export PATH=/usr/local/bin:$PATH
 export EDITOR="vim"
+export ANDROID_HOME=/Applications/Android\ Studio.app/sdk/
+export GRADLE_HOME=/usr/bin/gradle
+export PATH=$PATH:$GRADLE_HOME/bin
 
 # Load ~/.bash_prompt and ~/.aliases 
 for file in ~/.{bash_prompt,aliases}; do
