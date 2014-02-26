@@ -8,6 +8,10 @@ export PATH=$PATH:$GRADLE_HOME/bin
 for file in ~/.{bash_prompt,aliases}; do
         [ -r "$file" ] && source "$file"
 done
+
+# Load RVM into a shell session *as a function*
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
+
 unset file
 
 # Case-insensitive globbing (used in pathname expansion)
