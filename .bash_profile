@@ -5,12 +5,9 @@ export GRADLE_HOME=/usr/bin/gradle
 export PATH=$PATH:$GRADLE_HOME/bin
 
 # Load ~/.bash_prompt and ~/.aliases 
-for file in ~/.{bash_prompt,aliases}; do
+for file in ~/.{bash_prompt,aliases,profile}; do
         [ -r "$file" ] && source "$file"
 done
-
-# Load RVM into a shell session *as a function*
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm"
 
 unset file
 
@@ -30,3 +27,5 @@ export LANG="en_US"
 # Display Git Branch or Tag Names in your Bash Prompt
 source ~/.bash/git-prompt
 PS1="$GREEN\$(date +%H:%M) \w$RED \$(parse_git_branch_or_tag)$GREEN\$ "
+
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
