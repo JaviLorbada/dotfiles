@@ -44,3 +44,4 @@ alias gt="git tag"
 alias grst="git reset --hard"
 alias grv="git remote -v"
 alias gd='git diff'
+alias gr='git rebase'

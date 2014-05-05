@@ -57,6 +57,7 @@
     type = cat-file -t
     dump = cat-file -p
     mf = merge --no-ff
+    r = rebase
     prstash = "!f() { git fetch $1 refs/pull-requests/$2/from:$3; } ; f"
 [push]
     default = simple
