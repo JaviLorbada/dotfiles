@@ -45,3 +45,7 @@ alias grst="git reset --hard"
 alias grv="git remote -v"
 alias gd='git diff'
 alias gr='git rebase'
+alias gf='git flow'
+alias gfi='git flow init'
+alias gfs='git flow feature start'
+alias gff='git flow feature finish'
