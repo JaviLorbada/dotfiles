@@ -9,7 +9,7 @@ git-flow completion requires git-completion to work. How exactly you go about in
 
 ## OS X:
 
-By far the easiest way to install both Git and git-completion is via [Homebrew](http://mxcl.github.com/homebrew/).
+By far the easiest way to install both Git and git-completion is via [Homebrew](http://mxcl.github.com/homebrew/). For further details about the installation process follow [this guide.](http://www.moncefbelyamani.com/how-to-install-xcode-homebrew-git-rvm-ruby-on-mac/)
 
 ### Homebrew and Git
 
@@ -30,7 +30,8 @@ By far the easiest way to install both Git and git-completion is via [Homebrew](
 	```
 	$ brew install git bash-completion
 	``` 
-	(Note: If this install fails with a 404 error, and you already have git installed, just remove the git part of this brew install)
+		
+(Note: If this install fails with a 404 error, and you already have git installed, just remove the git part of this brew install)
 	
 4. Add bash-completion to your [`.bash_profile`](https://github.com/JaviLorbada/dotfiles/blob/master/.bash_profile):
 
@@ -44,9 +45,7 @@ A collection of Git extensions to provide high-level repository operations for V
 
 [Installation](https://github.com/nvie/gitflow/wiki/Mac-OS-X):
 
-	```
 	$ brew install git-flow
-	``` 
 
 ## RVM:
 
@@ -54,9 +53,8 @@ A collection of Git extensions to provide high-level repository operations for V
 
 Installation:
 
-	``` 
 	$ curl -L https://get.rvm.io | bash -s stable --rails --autolibs=enable
-	``` 
+
 	
 (Note: Read the [RVM installation documentation](https://github.com/wayneeseguin/rvm#installation) to see all the different options you can use.)
 
