@@ -9,18 +9,19 @@ git-flow completion requires git-completion to work. How exactly you go about in
 
 ## OS X:
 
-By far the easiest way to install both Git and git-completion is via [Homebrew](http://mxcl.github.com/homebrew/). For further details about the installation process follow [this guide.](http://www.moncefbelyamani.com/how-to-install-xcode-homebrew-git-rvm-ruby-on-mac/)
+By far the easiest way to install both Git and git-completion is via [Homebrew](http://brew.sh/). For further details about the installation process follow [this guide.](http://www.moncefbelyamani.com/how-to-install-xcode-homebrew-git-rvm-ruby-on-mac/)
 
 ### Homebrew and Git
 
-1. [Install homebrew](http://github.com/mxcl/homebrew/wiki/installation)
+1. [Install homebrew](http://brew.sh/)
 
 	```
-	$ ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+	$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 	```
 2. Install Git:
 
 	```
+	$ brew doctor
 	$ brew update
 	$ brew install git
 	```
@@ -51,12 +52,20 @@ A collection of Git extensions to provide high-level repository operations for V
 
 [RVM](https://rvm.io/) stands for Ruby Version Manager, and is one of the most popular tools that allow you to install and manage multiple versions of Ruby and Rails on the same computer. And I use it.
 
-Installation:
+[Installation](https://github.com/wayneeseguin/rvm#installation):
 
-	$ curl -L https://get.rvm.io | bash -s stable --rails --autolibs=enable
+	$ curl -L https://get.rvm.io | bash -s stable --autolibs=enabled [--ruby] [--rails] [--trace]
 
 	
 (Note: Read the [RVM installation documentation](https://github.com/wayneeseguin/rvm#installation) to see all the different options you can use.)
+
+## Cocoapods:
+
+[CocoaPods](http://cocoapods.org/) manages library dependencies for your Xcode projects.
+
+[Installation](http://guides.cocoapods.org/using/getting-started.html#installation):
+
+	$ sudo gem install cocoapods
 
 ## Install guide:
 
