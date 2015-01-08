@@ -1,4 +1,4 @@
-.dotfiles [![License MIT](http://b.repl.ca/v1/License-MIT-blue.png)](https://github.com/JaviLorbada/JLTMDbClient/blob/master/LICENSE)
+.dotfiles [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/JaviLorbada/JLTMDbClient/blob/master/LICENSE)
 ========
 
 My terminal dotfiles / setup
