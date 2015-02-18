@@ -84,6 +84,9 @@ You may want to add your name `~/.dotfiles/.gitconfig`
     username = JaviLorbada
 ```
 
+Additionaly, you may want to install some of the software I daily use.
+
+
 ## Contact:
 
 - [Javi Lorbada](mailto:javugi@gmail.com) 
