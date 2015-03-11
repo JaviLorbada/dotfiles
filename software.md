@@ -32,6 +32,7 @@
 * **WatchDog for Xcode**: <http://watchdogforxcode.com/>
 * **Fantastical**: <https://flexibits.com/fantastical>
 * **Sip**: <http://theolabrothers.com/>
+* **Skala Color**: <http://bjango.com/mac/skalacolor/>
 
 # Ruby gems:
 
