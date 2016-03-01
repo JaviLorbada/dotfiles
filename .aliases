@@ -13,6 +13,7 @@ alias b="cd ~/Box\ Sync/"
 alias dt="cd ~/Desktop"
 alias sudo='sudo ' # Enable aliases to be sudo’ed
 alias rl="source ~/.bash_profile"
+alias rmdd="rm -rf ~/Library/Developer/Xcode/DerivedData/"
 
 # Processes
 alias tu='top -o cpu' # processes sorted by CPU
