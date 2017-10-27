@@ -48,6 +48,7 @@
 * **UberLayer**: <https://itunes.apple.com/us/app/uberlayer/id510139938?mt=12>
 * **Sketch**: <https://www.sketchapp.com/>
 * **Zeplin**: <https://zeplin.io/>
+* **Homebrew**: <https://brew.sh/>
 
 # Ruby gems:
 
