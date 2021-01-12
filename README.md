@@ -16,7 +16,7 @@ By far the easiest way to install both Git and git-completion is via [Homebrew](
 1. [Install homebrew](http://brew.sh/)
 
 	```
-	$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 	```
 2. Install Git:
 
