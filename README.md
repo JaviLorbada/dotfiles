@@ -78,7 +78,7 @@ You may want to add your name `~/.dotfiles/.gitconfig`
 ```
 [user]
     name = JaviLorbada
-    email = javugi@gmail.com
+    email = javi@javilorbada.com
 [github]
     user = JaviLorbada
     username = JaviLorbada
