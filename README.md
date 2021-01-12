@@ -89,6 +89,6 @@ Additionally, you may want to install some of the [software](https://github.com/
 
 ## Contact:
 
-- [Javi Lorbada](mailto:javugi@gmail.com) 
-- Follow [@javi_lorbada](https://twitter.com/javi_lorbada) on twitter
-- http://javilorbada.me/
+- [Javi Lorbada](mailto:javi@javilorbada.com) 
+- Follow [@javilorbada](https://twitter.com/javilorbada) on twitter
+- https://javilorbada.com/
