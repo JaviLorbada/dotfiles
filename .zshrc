@@ -4,6 +4,9 @@
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
+# Increase function nesting limit to prevent recursion errors
+FUNCNEST=1000
+
 # Path to your oh-my-zsh installation.
 export ZSH="/Users/javilorbada/.oh-my-zsh"
 
@@ -15,15 +18,20 @@ ZSH_THEME=robbyrussell
 # Which plugins would you like to load?
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
+# Note: zsh-syntax-highlighting must be last
 plugins=(
   git
-  zsh-autosuggestions
-  zsh-syntax-highlighting
   docker
   kubectl
   npm
   macos
+  zsh-autosuggestions
+  zsh-syntax-highlighting
 )
+
+# Autosuggestions configuration (prevent conflicts)
+ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 
 source $ZSH/oh-my-zsh.sh
 
