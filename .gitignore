@@ -1,1 +1,5 @@
 .DS_Store
+*.local
+.zshrc.local
+.env
+.env.local

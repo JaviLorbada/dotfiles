@@ -1,0 +1,13 @@
+# Local machine-specific configuration and secrets
+# Copy this file to ~/.zshrc.local and add your own settings
+
+# Example: API tokens and secrets
+# export DANGER_GITHUB_API_TOKEN=your_token_here
+# export OPENAI_API_KEY=your_key_here
+
+# Example: Machine-specific paths
+# export CUSTOM_PATH=/path/to/something
+
+# Example: Local aliases
+# alias work="cd ~/Work"
+# alias personal="cd ~/Personal"

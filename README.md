@@ -1,94 +1,238 @@
-.dotfiles [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/JaviLorbada/JLTMDbClient/blob/master/LICENSE)
-========
+# .dotfiles [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/JaviLorbada/dotfiles/blob/master/LICENSE)
 
-My terminal dotfiles / setup
+Modern terminal dotfiles with zsh configuration, modern CLI tools, and sensible defaults.
 
-========
-git-flow completion requires git-completion to work. How exactly you go about installing git-completion varies wildly from system to system, so it's hard to give exact installation instructions. 
+## Features
 
+- **Modern ZSH Configuration**: Enhanced oh-my-zsh setup with useful plugins
+- **Modern CLI Tools**: Replacements for traditional Unix tools (eza, bat, fd, ripgrep, etc.)
+- **Smart Navigation**: zoxide for intelligent directory jumping
+- **Fuzzy Finding**: fzf for command history and file search
+- **Git Integration**: Comprehensive git aliases and enhanced status display
+- **macOS Optimized**: Finder shortcuts and system utilities
+- **Secure**: Local secrets management with .zshrc.local
 
-## OS X:
+## Quick Start
 
-By far the easiest way to install both Git and git-completion is via [Homebrew](http://brew.sh/). For further details about the installation process follow [this guide.](http://www.moncefbelyamani.com/how-to-install-xcode-homebrew-git-rvm-ruby-on-mac/)
+### Prerequisites
 
-### Homebrew and Git
+1. **Install Homebrew** (if not already installed):
+   ```bash
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
 
-1. [Install homebrew](http://brew.sh/)
+2. **Install oh-my-zsh**:
+   ```bash
+   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+   ```
 
-	```
-	$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-	```
-2. Install Git:
+### Installation
 
-	```
-	$ brew doctor
-	$ brew update
-	$ brew install git
-	```
- 
-3. Install bash-completion: 
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/JaviLorbada/dotfiles ~/Documents/Workspace/dotfiles
+   cd ~/Documents/Workspace/dotfiles
+   ```
 
-	```
-	$ brew install git bash-completion
-	``` 
-		
-(Note: If this install fails with a 404 error, and you already have git installed, just remove the git part of this brew install)
-	
-4. Add bash-completion to your [`.bash_profile`](https://github.com/JaviLorbada/dotfiles/blob/master/.bash_profile):
+2. **Install modern CLI tools**:
+   ```bash
+   brew install eza fzf zoxide bat fd ripgrep fnm git-flow
+   ```
 
-        if [ -f `brew --prefix`/etc/bash_completion ]; then
-            . `brew --prefix`/etc/bash_completion
-        fi
+3. **Install zsh plugins**:
+   ```bash
+   # Autosuggestions
+   git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
-## Git Flow:
+   # Syntax highlighting
+   git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+   ```
 
-A collection of Git extensions to provide high-level repository operations for Vincent Driessen's [branching model](http://nvie.com/posts/a-successful-git-branching-model/).
+4. **Run the install script**:
+   ```bash
+   ./install.sh
+   ```
 
-[Installation](https://github.com/nvie/gitflow/wiki/Mac-OS-X):
+5. **Set up local secrets** (optional):
+   ```bash
+   cp .zshrc.local.template ~/.zshrc.local
+   # Edit ~/.zshrc.local with your API tokens and secrets
+   ```
 
-	$ brew install git-flow
+6. **Configure Git** (update `~/.gitconfig` with your details):
+   ```bash
+   git config --global user.name "Your Name"
+   git config --global user.email "your.email@example.com"
+   ```
 
-## RVM:
+7. **Reload your shell**:
+   ```bash
+   source ~/.zshrc
+   ```
 
-[RVM](https://rvm.io/) stands for Ruby Version Manager, and is one of the most popular tools that allow you to install and manage multiple versions of Ruby and Rails on the same computer. And I use it.
+## What's Included
 
-[Installation](https://github.com/wayneeseguin/rvm#installation):
+### Modern CLI Tools
 
-	$ curl -L https://get.rvm.io | bash -s stable --autolibs=enabled [--ruby] [--rails] [--trace]
+- **eza**: Modern replacement for `ls` with git integration and icons
+- **bat**: Better `cat` with syntax highlighting
+- **fd**: Faster, user-friendly alternative to `find`
+- **ripgrep (rg)**: Faster grep alternative
+- **fzf**: Fuzzy finder for command history and files
+- **zoxide**: Smart directory navigation (tracks your most-used directories)
+- **fnm**: Fast Node.js version manager
 
-	
-(Note: Read the [RVM installation documentation](https://github.com/wayneeseguin/rvm#installation) to see all the different options you can use.)
+### ZSH Plugins
 
-## Cocoapods:
+- **git**: Git aliases and functions
+- **zsh-autosuggestions**: Fish-like autosuggestions
+- **zsh-syntax-highlighting**: Command syntax highlighting
+- **docker**: Docker completions
+- **kubectl**: Kubernetes completions
+- **npm**: NPM completions
+- **macos**: macOS-specific utilities
 
-[CocoaPods](http://cocoapods.org/) manages library dependencies for your Xcode projects.
+### Key Features
 
-[Installation](http://guides.cocoapods.org/using/getting-started.html#installation):
+#### Enhanced History
+- 50,000 command history with timestamps
+- Shared history across all terminal sessions
+- Duplicate removal and smart search
 
-	$ sudo gem install cocoapods
+#### Directory Navigation
+- `z <partial-path>`: Jump to frequently used directories
+- `d`: Show directory stack
+- `cdg`: Jump to git repository root
+- `..` and `...`: Quick parent directory navigation
 
-## Install guide:
+#### Git Shortcuts
+- `g`: git
+- `gs`: git status
+- `gco`: git checkout
+- `gcb`: git checkout -b
+- `glog`: Beautiful git log graph
+- And many more!
 
-1. Clone `git clone https://github.com/JaviLorbada/dotfiles`
-2. Run `cd dotfiles`
-3. Run `install.sh`
+#### Modern Aliases
+- `l`: List files with eza (icons + git status)
+- `la`: List all files including hidden
+- `lt`: Tree view
+- `cat`: Uses bat with syntax highlighting
+- `cd`: Uses zoxide for smart navigation
 
-You may want to add your name `~/.dotfiles/.gitconfig`
+#### macOS Utilities
+- `show`/`hide`: Toggle hidden files in Finder
+- `showdesktop`/`hidedesktop`: Toggle desktop icons
+- `ports`: Show listening ports
+- `flush`: Flush DNS cache
+
+## Optional Enhancements
+
+### Powerlevel10k Theme (Recommended)
+
+For a modern, fast, and beautiful prompt:
+
+```bash
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+```
+
+Then update `~/.zshrc`:
+```bash
+ZSH_THEME="powerlevel10k/powerlevel10k"
+```
+
+Run `p10k configure` to set up your prompt.
+
+### Additional Software
+
+Check out [software.md](software.md) for recommended applications and tools.
+
+## File Structure
 
 ```
-[user]
-    name = JaviLorbada
-    email = javi@javilorbada.com
-[github]
-    user = JaviLorbada
-    username = JaviLorbada
+.
+├── .zshrc                    # Main ZSH configuration
+├── .zshrc.local.template     # Template for local secrets
+├── .gitconfig                # Git configuration
+├── .gitignore                # Files to ignore in repo
+├── .aliases                  # Additional aliases (legacy)
+├── install.sh                # Installation script
+├── README.md                 # This file
+└── software.md               # Recommended software list
 ```
 
-Additionally, you may want to install some of the [software](https://github.com/JaviLorbada/dotfiles/blob/master/software.md) I daily use. 
+## Customization
 
+### Local Configuration
 
-## Contact:
+Create `~/.zshrc.local` for machine-specific settings that shouldn't be committed:
 
-- [Javi Lorbada](mailto:javi@javilorbada.com) 
-- Follow [@javilorbada](https://twitter.com/javilorbada) on twitter
+```bash
+# API tokens
+export GITHUB_TOKEN=your_token_here
+
+# Local paths
+export CUSTOM_PATH=/path/to/something
+
+# Machine-specific aliases
+alias work="cd ~/Work/projects"
+```
+
+### Adding Your Own Aliases
+
+Edit `~/.zshrc` or add them to `~/.zshrc.local` for local-only aliases.
+
+## Updating
+
+To update your dotfiles:
+
+```bash
+cd ~/Documents/Workspace/dotfiles
+git pull origin master
+source ~/.zshrc
+```
+
+## Security Note
+
+**IMPORTANT**: Never commit API tokens, passwords, or other secrets to the repository. Always use `~/.zshrc.local` for sensitive information, which is automatically excluded from git.
+
+## Legacy Files
+
+Some legacy bash files are included for compatibility but are no longer actively maintained:
+- `.bash_profile`
+- `.bashrc`
+- `.bash_prompt`
+
+## Troubleshooting
+
+### Plugins not loading?
+
+Make sure you've cloned the plugin repositories and they're in the correct location:
+```bash
+ls ~/.oh-my-zsh/custom/plugins/
+```
+
+### Modern tools not working?
+
+Check they're installed:
+```bash
+brew list | grep -E "eza|fzf|zoxide|bat|fd|ripgrep"
+```
+
+### Symlinks not working?
+
+Re-run the install script:
+```bash
+cd ~/Documents/Workspace/dotfiles
+./install.sh
+```
+
+## Contact
+
+- [Javi Lorbada](mailto:javi@javilorbada.com)
+- Follow [@javilorbada](https://twitter.com/javilorbada) on Twitter
 - https://javilorbada.com/
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
