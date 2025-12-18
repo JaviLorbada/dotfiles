@@ -48,24 +48,49 @@ Modern terminal dotfiles with zsh configuration, modern CLI tools, and sensible 
    git clone https://github.com/zsh-users/zsh-syntax-highlighting ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
    ```
 
-4. **Run the install script**:
+4. **Install Nerd Fonts** (required for icons in `eza`):
+   ```bash
+   brew install --cask font-jetbrains-mono-nerd-font font-fira-code-nerd-font font-meslo-lg-nerd-font
+   ```
+
+5. **Run the install script**:
    ```bash
    ./install.sh
    ```
 
-5. **Set up local secrets** (optional):
+6. **Configure your terminal to use a Nerd Font**:
+
+   **For iTerm2:**
+   - Press `Cmd + ,` to open Preferences
+   - Go to Profiles → Text
+   - Click "Change Font" and select one of:
+     - **JetBrainsMono Nerd Font** (recommended)
+     - **FiraCode Nerd Font** (with ligatures)
+     - **MesloLGS NF**
+   - Choose size 13-14
+   - Optionally enable "Use ligatures" for FiraCode
+
+   **For macOS Terminal:**
+   - Terminal → Settings → Profiles
+   - Select your profile → Text tab
+   - Click "Change" next to Font
+   - Select a Nerd Font from the list
+
+   **For other terminals:** Look for font settings and select any Nerd Font.
+
+7. **Set up local secrets** (optional):
    ```bash
    cp .zshrc.local.template ~/.zshrc.local
    # Edit ~/.zshrc.local with your API tokens and secrets
    ```
 
-6. **Configure Git** (update `~/.gitconfig` with your details):
+8. **Configure Git** (update `~/.gitconfig` with your details):
    ```bash
    git config --global user.name "Your Name"
    git config --global user.email "your.email@example.com"
    ```
 
-7. **Reload your shell**:
+9. **Reload your shell**:
    ```bash
    source ~/.zshrc
    ```
@@ -74,7 +99,7 @@ Modern terminal dotfiles with zsh configuration, modern CLI tools, and sensible 
 
 ### Modern CLI Tools
 
-- **eza**: Modern replacement for `ls` with git integration and icons
+- **eza**: Modern replacement for `ls` with git integration and icons (requires Nerd Font)
 - **bat**: Better `cat` with syntax highlighting
 - **fd**: Faster, user-friendly alternative to `find`
 - **ripgrep (rg)**: Faster grep alternative
@@ -204,6 +229,24 @@ Some legacy bash files are included for compatibility but are no longer actively
 - `.bash_prompt`
 
 ## Troubleshooting
+
+### Icons not showing in eza/ls output?
+
+If you see `--` or boxes instead of proper file/folder icons:
+
+1. **Install a Nerd Font** (if not already done):
+   ```bash
+   brew install --cask font-jetbrains-mono-nerd-font
+   ```
+
+2. **Configure your terminal** to use the Nerd Font:
+   - iTerm2: `Cmd + ,` → Profiles → Text → Change Font
+   - Terminal: Settings → Profiles → Text → Font
+   - Select "JetBrainsMono Nerd Font" or any other Nerd Font
+
+3. **Restart your terminal** completely (close all tabs/windows)
+
+4. **Test**: Run `l` and you should see proper icons 📁 📄 🔧
 
 ### Plugins not loading?
 
