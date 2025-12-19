@@ -130,18 +130,18 @@ alias gpr='git remote prune origin'
 alias glog="git log --graph --oneline --decorate --all"
 
 # Functions
-openx(){ 
-  if test -n "$(find . -maxdepth 1 -name '*.xcworkspace' -print -quit)"
+openx(){
+  if test -n "$(command find . -maxdepth 1 -name '*.xcworkspace' -print -quit)"
   then
     echo "Opening workspace"
     open *.xcworkspace
     return
   else
-    if test -n "$(find . -maxdepth 1 -name '*.xcodeproj' -print -quit)"
+    if test -n "$(command find . -maxdepth 1 -name '*.xcodeproj' -print -quit)"
     then
       echo "Opening project"
       open *.xcodeproj
-      return  
+      return
     else
       echo "Nothing found"
     fi
