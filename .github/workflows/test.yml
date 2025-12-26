@@ -1,0 +1,113 @@
+name: Test Dotfiles
+
+on:
+  push:
+    branches: [master, main, 'claude/**']
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  # ==========================================================================
+  # Syntax Validation
+  # ==========================================================================
+  syntax:
+    name: Syntax Check
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Bash syntax
+        run: |
+          echo "Checking Bash syntax..."
+          bash -n .bash_profile
+          bash -n .bashrc
+          bash -n .bash_prompt
+          bash -n .aliases
+          bash -n .profile
+          bash -n .bash/git-prompt
+          bash -n install.sh
+          echo "All Bash files have valid syntax"
+
+      - name: Check Zsh syntax
+        run: |
+          echo "Checking Zsh syntax..."
+          zsh -n .zshrc
+          zsh -n .zlogin
+          echo "All Zsh files have valid syntax"
+
+  # ==========================================================================
+  # ShellCheck Static Analysis
+  # ==========================================================================
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Run ShellCheck
+        run: |
+          echo "Running ShellCheck..."
+          shellcheck .bash_profile .bash_prompt .aliases .bash/git-prompt install.sh
+          echo "ShellCheck passed"
+
+  # ==========================================================================
+  # BATS Tests
+  # ==========================================================================
+  bats:
+    name: BATS Tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install BATS
+        run: brew install bats-core
+
+      - name: Run BATS tests
+        run: |
+          echo "Running BATS tests..."
+          bats test/
+
+  # ==========================================================================
+  # Install Script Test (Dry Run)
+  # ==========================================================================
+  install-test:
+    name: Install Script Validation
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate install script structure
+        run: |
+          # Check that install.sh is syntactically correct
+          bash -n install.sh
+
+          # Verify expected variables are defined
+          grep -q "IGNORED_FILES" install.sh
+          grep -q "SNIPPETS_URL" install.sh
+          grep -q "XCODE_SNIPPETS_DIR" install.sh
+
+          echo "Install script validation passed"
+
+  # ==========================================================================
+  # Cross-platform Syntax Check
+  # ==========================================================================
+  linux-compat:
+    name: Linux Compatibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Zsh
+        run: sudo apt-get install -y zsh
+
+      - name: Check syntax on Linux
+        run: |
+          # These should parse correctly even on Linux
+          bash -n .bash_profile
+          bash -n .bash_prompt
+          bash -n .aliases
+          zsh -n .zshrc
+          echo "Linux compatibility check passed"
