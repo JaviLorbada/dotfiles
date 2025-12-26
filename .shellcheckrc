@@ -18,6 +18,10 @@ disable=SC1091
 # Reason: Many variables are used by the shell/prompt (PS1 colors, etc.)
 disable=SC2034
 
+# SC2154: Variable referenced but not assigned
+# Reason: Color variables (GREEN, RED) defined in .bash_prompt, used in .bash_profile
+disable=SC2154
+
 # SC2148: Tips depend on target shell
 # Reason: Some files are sourced, not executed directly
 disable=SC2148

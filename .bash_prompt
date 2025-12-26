@@ -11,8 +11,9 @@ RESET="\[\033[m\]"
 
 # Git
 # enable the git bash completion commands, should have homebrew
-if [ -f `brew --prefix`/etc/bash_completion ]; then
-    . `brew --prefix`/etc/bash_completion
+if command -v brew &>/dev/null && [ -f "$(brew --prefix)/etc/bash_completion" ]; then
+    # shellcheck source=/dev/null
+    . "$(brew --prefix)/etc/bash_completion"
 fi
 
 gc() {
@@ -21,31 +22,27 @@ gc() {
 }
 
 # wo = workspace
-wo() {  
-  code_dir=~/Desktop/Workspace/
-  cd $(find $code_dir -type d -maxdepth 3 | grep -i $* | grep -v /Pods --max-count=1)
+wo() {
+  local code_dir=~/Desktop/Workspace/
+  cd "$(find "$code_dir" -type d -maxdepth 3 | grep -i "$*" | grep -v /Pods --max-count=1)" || return
 }
 
 # wor = workspace at work
 wor() {
-  code_dir=~/Desktop/JaviLorbada/StashRepos/
-  cd $(find $code_dir -type d -maxdepth 3 | grep -i $* | grep -v /Pods --max-count=1)
+  local code_dir=~/Desktop/JaviLorbada/StashRepos/
+  cd "$(find "$code_dir" -type d -maxdepth 3 | grep -i "$*" | grep -v /Pods --max-count=1)" || return
 }
 
-openx(){ 
-  if test -n "$(find . -maxdepth 1 -name '*.xcworkspace' -print -quit)"
-  then
+openx(){
+  if test -n "$(find . -maxdepth 1 -name '*.xcworkspace' -print -quit)"; then
     echo "Opening workspace"
-    open *.xcworkspace
+    open ./*.xcworkspace
+    return
+  elif test -n "$(find . -maxdepth 1 -name '*.xcodeproj' -print -quit)"; then
+    echo "Opening project"
+    open ./*.xcodeproj
     return
   else
-    if test -n "$(find . -maxdepth 1 -name '*.xcodeproj' -print -quit)"
-    then
-      echo "Opening project"
-      open *.xcodeproj
-      return  
-    else
-      echo "Nothing found"
-    fi
+    echo "Nothing found"
   fi
 }

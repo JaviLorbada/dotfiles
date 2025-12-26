@@ -61,12 +61,17 @@ teardown() {
 # =============================================================================
 
 @test "install.sh creates symlinks to home directory" {
-  run grep "ln -s" "${DOTFILES_DIR}/install.sh"
+  run grep "ln -sf" "${DOTFILES_DIR}/install.sh"
   [ "$status" -eq 0 ]
 }
 
 @test "install.sh links to home directory correctly" {
-  run grep 'link_to=~/' "${DOTFILES_DIR}/install.sh"
+  run grep 'link_to="\$HOME/' "${DOTFILES_DIR}/install.sh"
+  [ "$status" -eq 0 ]
+}
+
+@test "install.sh defines contains_element helper function" {
+  run grep "contains_element()" "${DOTFILES_DIR}/install.sh"
   [ "$status" -eq 0 ]
 }
 

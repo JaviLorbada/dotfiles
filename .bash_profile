@@ -24,8 +24,9 @@ shopt -s cdspell
 export LC_ALL="en_US.UTF-8"
 export LANG="en_US"
 
-if [ -f $(brew --prefix)/etc/bash_completion ]; then
-    . $(brew --prefix)/etc/bash_completion
+if command -v brew &>/dev/null && [ -f "$(brew --prefix)/etc/bash_completion" ]; then
+    # shellcheck source=/dev/null
+    . "$(brew --prefix)/etc/bash_completion"
 fi
 
 # Display Git Branch or Tag Names in your Bash Prompt
