@@ -1,0 +1,36 @@
+# ShellCheck configuration for dotfiles
+# https://github.com/koalaman/shellcheck/wiki/Directive
+
+# Default shell dialect (bash is more strict, good for catching issues)
+shell=bash
+
+# Disable specific checks that are intentional in dotfiles:
+
+# SC1090: Can't follow non-constant source
+# Reason: We source dynamic paths like ~/.zshrc.local
+disable=SC1090
+
+# SC1091: Not following sourced file
+# Reason: External files like oh-my-zsh, brew completions
+disable=SC1091
+
+# SC2034: Variable appears unused
+# Reason: Many variables are used by the shell/prompt (PS1 colors, etc.)
+disable=SC2034
+
+# SC2154: Variable referenced but not assigned
+# Reason: Color variables (GREEN, RED) defined in .bash_prompt, used in .bash_profile
+disable=SC2154
+
+# SC2148: Tips depend on target shell
+# Reason: Some files are sourced, not executed directly
+disable=SC2148
+
+# Enable optional checks
+enable=add-default-case
+enable=avoid-nullary-conditions
+enable=check-unassigned-uppercase
+enable=quote-safe-variables
+
+# Severity: error, warning, info, style
+severity=warning
