@@ -1,0 +1,81 @@
+# Ghostty Terminal Configuration
+# https://ghostty.org/docs/config
+
+# ============================================================================
+# Font Configuration
+# ============================================================================
+font-family = JetBrainsMono Nerd Font
+font-size = 14
+
+# Alternative fonts (uncomment to use):
+# font-family = FiraCode Nerd Font
+# font-family = MesloLGS NF
+
+# Font features (ligatures for FiraCode)
+# font-feature = calt
+# font-feature = liga
+
+# ============================================================================
+# Window Configuration
+# ============================================================================
+window-padding-x = 8
+window-padding-y = 8
+window-decoration = true
+macos-titlebar-style = tabs
+
+# ============================================================================
+# Shell Integration
+# ============================================================================
+# Enables semantic prompts, current directory tracking, and more
+shell-integration = zsh
+shell-integration-features = cursor,sudo,title
+
+# ============================================================================
+# Cursor
+# ============================================================================
+cursor-style = block
+cursor-style-blink = true
+
+# ============================================================================
+# Clipboard
+# ============================================================================
+copy-on-select = clipboard
+clipboard-paste-protection = false
+
+# ============================================================================
+# Mouse
+# ============================================================================
+mouse-hide-while-typing = true
+
+# ============================================================================
+# Scrollback
+# ============================================================================
+scrollback-limit = 50000
+
+# ============================================================================
+# Theme
+# ============================================================================
+# Ghostty has many built-in themes. Uncomment one to use:
+# theme = Catppuccin Mocha
+# theme = Dracula
+# theme = Gruvbox Dark
+# theme = Nord
+# theme = One Dark
+# theme = Solarized Dark
+# theme = Tokyo Night
+
+# Or use the system theme:
+# theme = auto
+
+# ============================================================================
+# Keyboard
+# ============================================================================
+# macOS-specific: Option key behavior
+macos-option-as-alt = true
+
+# ============================================================================
+# Quick Terminal (macOS)
+# ============================================================================
+# Uncomment to enable quick terminal with a global hotkey
+# quick-terminal-position = top
+# quick-terminal-screen = main

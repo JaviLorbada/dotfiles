@@ -60,6 +60,13 @@ Modern terminal dotfiles with zsh configuration, modern CLI tools, and sensible 
 
 6. **Configure your terminal to use a Nerd Font**:
 
+   **For Ghostty (Recommended):**
+   - Configuration is automatic! The install script links the config from `.config/ghostty/`
+   - Default font: JetBrainsMono Nerd Font at size 14
+   - To customize, edit `~/.config/ghostty/config`
+   - Restart Ghostty to apply changes
+   - Key features enabled: shell integration, Option-as-Alt, 50k scrollback
+
    **For iTerm2:**
    - Press `Cmd + ,` to open Preferences
    - Go to Profiles → Text
@@ -176,6 +183,9 @@ Check out [software.md](software.md) for recommended applications and tools.
 
 ```
 .
+├── .config/
+│   └── ghostty/
+│       └── config            # Ghostty terminal configuration
 ├── .zshrc                    # Main ZSH configuration
 ├── .zshrc.local.template     # Template for local secrets
 ├── .gitconfig                # Git configuration
@@ -240,6 +250,7 @@ If you see `--` or boxes instead of proper file/folder icons:
    ```
 
 2. **Configure your terminal** to use the Nerd Font:
+   - Ghostty: Edit `~/.config/ghostty/config` and set `font-family`
    - iTerm2: `Cmd + ,` → Profiles → Text → Change Font
    - Terminal: Settings → Profiles → Text → Font
    - Select "JetBrainsMono Nerd Font" or any other Nerd Font

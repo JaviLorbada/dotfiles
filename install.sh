@@ -14,6 +14,31 @@ done
 
 source ~/.bash_profile
 
+# ============================================================================
+# Ghostty Configuration
+# ============================================================================
+GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
+GHOSTTY_SOURCE_DIR="$(pwd)/.config/ghostty"
+
+if [ -d "$GHOSTTY_SOURCE_DIR" ]; then
+    echo "Setting up Ghostty configuration..."
+    mkdir -p "$HOME/.config"
+    if [ -L "$GHOSTTY_CONFIG_DIR" ]; then
+        echo "Ghostty config symlink already exists, skipping..."
+    elif [ -d "$GHOSTTY_CONFIG_DIR" ]; then
+        echo "Ghostty config directory exists, backing up to $GHOSTTY_CONFIG_DIR.backup"
+        mv "$GHOSTTY_CONFIG_DIR" "$GHOSTTY_CONFIG_DIR.backup"
+        ln -s "$GHOSTTY_SOURCE_DIR" "$GHOSTTY_CONFIG_DIR"
+        echo "Ghostty config linked successfully"
+    else
+        ln -s "$GHOSTTY_SOURCE_DIR" "$GHOSTTY_CONFIG_DIR"
+        echo "Ghostty config linked successfully"
+    fi
+fi
+
+# ============================================================================
+# Xcode Snippets
+# ============================================================================
 SNIPPETS_URL=https://github.com/JaviLorbada/JLXcode-Snippets.git
 XCODE_SNIPPETS_DIR="${HOME}/Library/Developer/Xcode/UserData/CodeSnippets/"
 REPONAME=$(echo $SNIPPETS_URL | awk -F/ '{print $NF}' | sed -e 's/.git$//');
