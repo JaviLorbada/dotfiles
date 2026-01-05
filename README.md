@@ -190,7 +190,6 @@ Check out [software.md](software.md) for recommended applications and tools.
 ├── .zshrc.local.template     # Template for local secrets
 ├── .gitconfig                # Git configuration
 ├── .gitignore                # Files to ignore in repo
-├── .aliases                  # Additional aliases (legacy)
 ├── install.sh                # Installation script
 ├── README.md                 # This file
 └── software.md               # Recommended software list
