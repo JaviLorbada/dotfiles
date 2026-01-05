@@ -111,7 +111,7 @@ alias go="git co"
 alias gcb="git co -b"
 alias gb="git br"
 alias gba="git br -a"
-alias gh="git hist"
+alias ghist="git hist"
 alias gp="git push"
 alias gl="git pull"
 alias gs="git status -sb"
@@ -131,20 +131,16 @@ alias glog="git log --graph --oneline --decorate --all"
 
 # Functions
 openx(){
-  if test -n "$(command find . -maxdepth 1 -name '*.xcworkspace' -print -quit)"
-  then
+  if test -n "$(command find . -maxdepth 1 -name '*.xcworkspace' -print -quit)"; then
     echo "Opening workspace"
-    open *.xcworkspace
+    open ./*.xcworkspace
+    return
+  elif test -n "$(command find . -maxdepth 1 -name '*.xcodeproj' -print -quit)"; then
+    echo "Opening project"
+    open ./*.xcodeproj
     return
   else
-    if test -n "$(command find . -maxdepth 1 -name '*.xcodeproj' -print -quit)"
-    then
-      echo "Opening project"
-      open *.xcodeproj
-      return
-    else
-      echo "Nothing found"
-    fi
+    echo "Nothing found"
   fi
 }
 
@@ -165,11 +161,6 @@ eval "$(rbenv init - zsh)" 2>/dev/null
 eval "$(fzf --zsh)" 2>/dev/null           # Fuzzy finder
 eval "$(zoxide init zsh)" 2>/dev/null     # Smart cd replacement
 eval "$(fnm env --use-on-cd)" 2>/dev/null # Fast Node version manager
-
-# ============================================================================
-# External Sources
-# ============================================================================
-[[ -f "$HOME/fig-export/dotfiles/dotfile.zsh" ]] && builtin source "$HOME/fig-export/dotfiles/dotfile.zsh"
 
 # Load local secrets and machine-specific config (not tracked in git)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

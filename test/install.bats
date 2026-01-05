@@ -84,7 +84,6 @@ teardown() {
     ".zshrc"
     ".bash_profile"
     ".bash_prompt"
-    ".aliases"
     ".gitconfig"
     ".gitignore_global"
   )

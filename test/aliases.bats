@@ -4,24 +4,6 @@
 load test_helper
 
 # =============================================================================
-# Critical Alias Existence Tests
-# =============================================================================
-
-@test ".aliases file exists" {
-  [ -f "${DOTFILES_DIR}/.aliases" ]
-}
-
-@test ".aliases defines navigation aliases" {
-  run grep -E "^alias \.\." "${DOTFILES_DIR}/.aliases"
-  [ "$status" -eq 0 ]
-}
-
-@test ".aliases defines git aliases" {
-  run grep -E "^alias g=" "${DOTFILES_DIR}/.aliases"
-  [ "$status" -eq 0 ]
-}
-
-# =============================================================================
 # ZSH Alias Tests
 # =============================================================================
 

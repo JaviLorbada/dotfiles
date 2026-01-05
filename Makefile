@@ -25,20 +25,17 @@ syntax:
 	@bash -n .bash_profile
 	@bash -n .bashrc
 	@bash -n .bash_prompt
-	@bash -n .aliases
-	@bash -n .profile
 	@bash -n .bash/git-prompt
 	@bash -n install.sh
 	@echo "==> Checking Zsh syntax..."
 	@zsh -n .zshrc 2>/dev/null || echo "    (zsh not available, skipping)"
-	@zsh -n .zlogin 2>/dev/null || echo "    (zsh not available, skipping)"
 	@echo "==> Syntax check passed!"
 
 # ShellCheck static analysis
 shellcheck:
 	@echo "==> Running ShellCheck..."
 	@if command -v shellcheck >/dev/null 2>&1; then \
-		shellcheck .bash_profile .bash_prompt .aliases .bash/git-prompt install.sh; \
+		shellcheck .bash_profile .bash_prompt .bash/git-prompt install.sh; \
 		echo "==> ShellCheck passed!"; \
 	else \
 		echo "    ShellCheck not installed, skipping (brew install shellcheck)"; \
