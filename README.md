@@ -1,4 +1,4 @@
-# .dotfiles [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/JaviLorbada/dotfiles/blob/master/LICENSE)
+# .dotfiles [![License MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://github.com/JaviLorbada/dotfiles/blob/main/LICENSE)
 
 Modern terminal dotfiles with zsh configuration, modern CLI tools, and sensible defaults.
 
@@ -223,7 +223,7 @@ To update your dotfiles:
 
 ```bash
 cd ~/Documents/Workspace/dotfiles
-git pull origin master
+git pull origin main
 source ~/.zshrc
 ```
 
