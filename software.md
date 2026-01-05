@@ -1,82 +1,119 @@
-# Software:
+# Software
 
-## General
+Recommended applications and tools for macOS development setup.
 
-* **Alfred**: <http://www.alfredapp.com/>
-* **Dropbox**: <https://www.dropbox.com/downloading?os=mac>
-* **1Password**: <https://agilebits.com/onepassword/mac>
-* **Google Chrome**: <https://www.google.com/chrome/browser/desktop/index.html>
-* **Spotify**: <https://www.spotify.com/us/download/mac/>
-* **Bartender**: <http://www.macbartender.com/>
-* **Skype**: <http://www.skype.com/en/download-skype/skype-for-mac/>
-* **Boom2**: <https://www.globaldelight.com/boom/boom2.php>
-* **Rectangle**: <https://rectangleapp.com/> (Formerly **Spectacle**: <http://spectacleapp.com/>)
-* **Fantastical**: <https://apps.apple.com/us/app/fantastical-calendar-tasks/id718043190>
-* **The Clock**: <https://apps.apple.com/us/app/the-clock/id488764545?mt=12>
-* **Disk Inventory X**: <http://www.derlien.com/downloads/index.html>
-* **iStat Menus**: <https://bjango.com/mac/istatmenus/>
-* **IA Writer**: <https://ia.net/writer/>
-* **Whatsapp**: <https://www.whatsapp.com/download/?lang=en>
-* **VLC**: <https://get.videolan.org/vlc/3.0.11.1/macosx/vlc-3.0.11.1.dmg>
+## Productivity
 
-## Photography
+* **Alfred**: <https://www.alfredapp.com/>
+* **1Password**: <https://1password.com/downloads/mac/>
+* **Fantastical**: <https://flexibits.com/fantastical>
+* **iA Writer**: <https://ia.net/writer>
 
-* **Backblaze**: <https://www.backblaze.com/>
-* **Photo Mechanic 5**: <https://home.camerabits.com/tour-photo-mechanic/>
-* **Adobe Creative Cloud**: <https://creativecloud.adobe.com/apps/all/desktop>
-* **LRTimelapse**: <https://lrtimelapse.com/download/>
-* **Topaz Gigapixel AI**: <https://topazlabs.com/gigapixel-ai/>
-* **Notion**: <https://www.notion.so/>
-* **StarStaX**: <https://markus-enzweiler.de/software/starstax/>
-* **Table Tool CSV**: <https://apps.apple.com/us/app/table-tool/id1122008420?mt=12>
+## Browsers
+
+* **Arc**: <https://arc.net/>
+* **Google Chrome**: <https://www.google.com/chrome/>
+* **DuckDuckGo**: <https://duckduckgo.com/app>
+
+## Communication
+
+* **Slack**: <https://slack.com/downloads/mac>
+* **WhatsApp**: <https://www.whatsapp.com/download>
+* **Telegram**: <https://telegram.org/apps>
+* **Zoom**: <https://zoom.us/download>
 
 ## Development
 
+### Terminals & Editors
+
+* **Ghostty**: <https://ghostty.org/> (Recommended terminal)
+* **iTerm2**: <https://iterm2.com/> (Alternative terminal)
+* **Cursor**: <https://cursor.sh/> (AI-powered code editor)
+* **Sublime Text**: <https://www.sublimetext.com/>
 * **Xcode**: <https://developer.apple.com/xcode/>
-* **iTerm2**: <http://iterm2.com/>
-* **Dotfiles**: <https://github.com/JaviLorbada/dotfiles>
+* **JetBrains Toolbox**: <https://www.jetbrains.com/toolbox-app/>
+
+### CLI Tools (via Homebrew)
+
+```bash
+brew install eza fzf zoxide bat fd ripgrep fnm
+```
+
+* **eza**: Modern `ls` replacement with git integration and icons
+* **bat**: Better `cat` with syntax highlighting
+* **fd**: Faster, user-friendly `find` alternative
+* **ripgrep (rg)**: Faster grep alternative
+* **fzf**: Fuzzy finder for command history and files
+* **zoxide**: Smart directory navigation
+* **fnm**: Fast Node.js version manager
+
+### Package Managers & Containers
+
 * **Homebrew**: <https://brew.sh/>
-* **Slack**: <https://slack.com/intl/en-es/>
+* **Docker**: <https://www.docker.com/products/docker-desktop/>
+* **pre-commit**: <https://pre-commit.com/> (Git hooks framework)
 
-## Other Apps (May not use today)
+### Git Clients
 
-* **Docker**: <https://www.docker.com/>
-* **CouchDB**: <http://couchdb.apache.org/>
-* **Trello**: <https://trello.com/>
-* **RescueTime**: <https://www.rescuetime.com/>
-* **GIF Brewery 3**: <http://gifbrewery.com/>
-* **ImageAlpha**: <http://pngmini.com/>
-* **ImageOptim**: <https://imageoptim.com/>
-* **SimPholders2**: <http://simpholders.com/>
-* **Snippet Edit**: <http://cocoaholic.com/snippet_edit/>
-* **Mou**: <http://25.io/mou/>
-* **Sublime Text**: <http://www.sublimetext.com/3>
-* **SoundCleod**: <http://salomvary.github.io/soundcleod/>
-* **AppZapper**: <http://www.appzapper.com/>
-* **Charles**: <http://www.charlesproxy.com/latest-release/download.do>
-* **KnockToUnlock**: <http://www.knocktounlock.com/>
-* **Developer Picker Color**: <http://download.panic.com/picker/>
-* **Box**: <https://app.box.com/settings/sync>
-* **xctool**: <https://github.com/facebook/xctool>
-* **Alcatraz**: <http://alcatraz.io/>
-* **Quick Look Plugins**: <https://github.com/sindresorhus/quick-look-plugins>
-* **f.lux**: <https://justgetflux.com/>
-* **WatchDog for Xcode**: <https://www.cerebralgardens.com/watchdog>
-* **Sip**: <http://theolabrothers.com/>
-* **Skitch**: <https://evernote.com/products/skitch>
-* **Skala Color**: <http://bjango.com/mac/skalacolor/>
-* **Github Desktop**: <https://desktop.github.com/>
-* **Gitify**: <http://gitify.io/>
-* **Gitup**: <http://gitup.co/>
-* **Paw**: <https://paw.cloud/>
-* **UberLayer**: <https://itunes.apple.com/us/app/uberlayer/id510139938?mt=12>
-* **Sketch**: <https://www.sketchapp.com/>
-* **Zeplin**: <https://zeplin.io/>
+* **GitHub Desktop**: <https://desktop.github.com/>
+* **GitUp**: <https://gitup.co/>
+* **gh**: <https://cli.github.com/> (GitHub CLI)
 
-# Ruby gems:
+### Network & Debugging
 
-* **Cocoapods**: <http://cocoapods.org/>
-* **shenzhen**: <https://github.com/nomad/shenzhen>
-* **fui**: <https://github.com/dblock/fui>
+* **Proxyman**: <https://proxyman.io/> (HTTP debugging proxy)
+
+### iOS Development
+
+* **RocketSim**: <https://www.rocketsim.app/> (iOS Simulator tools)
+* **InjectionIII**: <https://github.com/johnno1962/InjectionIII> (Hot reload for iOS)
+* **SF Symbols**: <https://developer.apple.com/sf-symbols/> (Apple icon library)
+* **fastlane**: <https://fastlane.tools/>
 * **xcpretty**: <https://github.com/supermarin/xcpretty>
-* **fastlane**: <http://fastlane.tools/>
+* **mint**: <https://github.com/yonaskolb/Mint> (Swift package manager)
+* **periphery**: <https://github.com/peripheryapp/periphery> (Dead code detection)
+* **xcbeautify**: <https://github.com/cpisciotta/xcbeautify> (Pretty Xcode output)
+* **lokalise2**: <https://lokalise.com/> (Localization management)
+
+## System Utilities
+
+* **Bartender**: <https://www.macbartender.com/>
+* **Rectangle**: <https://rectangleapp.com/> (Window management)
+* **iStat Menus**: <https://bjango.com/mac/istatmenus/>
+* **DaisyDisk**: <https://daisydiskapp.com/> (Disk space analyzer)
+* **Tailscale**: <https://tailscale.com/> (VPN)
+* **The Unarchiver**: <https://theunarchiver.com/> (Archive extraction)
+* **Mole**: <https://github.com/tw93/Mole> (App cleanup utility)
+
+## Cloud Storage
+
+* **Dropbox**: <https://www.dropbox.com/downloading>
+
+## Media
+
+* **Spotify**: <https://www.spotify.com/download/mac/>
+* **VLC**: <https://www.videolan.org/vlc/>
+
+## Photography & Video
+
+* **Adobe Creative Cloud**: <https://creativecloud.adobe.com/>
+* **DaVinci Resolve**: <https://www.blackmagicdesign.com/products/davinciresolve>
+* **Topaz Photo AI**: <https://www.topazlabs.com/topaz-photo-ai>
+* **Photo Mechanic**: <https://home.camerabits.com/>
+* **LRTimelapse**: <https://lrtimelapse.com/>
+* **Backblaze**: <https://www.backblaze.com/> (Cloud backup)
+
+## Design & Graphics
+
+* **GIF Brewery 3**: <https://gfycat.com/gifbrewery>
+* **Sip**: <https://sipapp.io/> (Color picker)
+
+## AI Tools
+
+* **ChatGPT**: <https://openai.com/chatgpt/mac/>
+* **Claude Code**: <https://docs.anthropic.com/en/docs/claude-code> (AI coding assistant CLI)
+* **Codex CLI**: <https://github.com/openai/codex> (OpenAI Codex CLI)
+
+## Other Utilities
+
+* **Table Tool**: <https://apps.apple.com/app/table-tool/id1122008420> (CSV viewer)
