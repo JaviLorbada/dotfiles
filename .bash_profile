@@ -33,5 +33,5 @@ fi
 source ~/.bash/git-prompt
 PS1="$GREEN\$(date +%H:%M) \w$RED \$(parse_git_branch_or_tag)$GREEN\$ "
 
-[[ -s "$HOME/.rvm/scripts/rvm" ]] && source "$HOME/.rvm/scripts/rvm" # Load RVM into a shell session *as a function*
-if which swiftenv > /dev/null; then eval "$(swiftenv init -)"; fi
+# Swift version manager (optional)
+if command -v swiftenv > /dev/null; then eval "$(swiftenv init -)"; fi

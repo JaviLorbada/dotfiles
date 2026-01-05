@@ -71,12 +71,17 @@ teardown() {
 }
 
 # =============================================================================
-# gc() Function Tests
+# wo() Workspace Function
 # =============================================================================
 
-@test "gc function is defined in .bash_prompt" {
+@test "wo function is defined in .bash_prompt" {
   source "${DOTFILES_DIR}/.bash_prompt" 2>/dev/null || true
-  run type gc
+  run type wo
+  [ "$status" -eq 0 ]
+}
+
+@test "wo function uses Documents/Workspace path" {
+  run grep "Documents/Workspace" "${DOTFILES_DIR}/.bash_prompt"
   [ "$status" -eq 0 ]
 }
 
@@ -123,20 +128,4 @@ teardown() {
 
   run parse_git_branch
   [[ "$output" == *"master"* ]] || [[ "$output" == *"main"* ]]
-}
-
-# =============================================================================
-# wo() and wor() Workspace Functions
-# =============================================================================
-
-@test "wo function is defined in .bash_prompt" {
-  source "${DOTFILES_DIR}/.bash_prompt" 2>/dev/null || true
-  run type wo
-  [ "$status" -eq 0 ]
-}
-
-@test "wor function is defined in .bash_prompt" {
-  source "${DOTFILES_DIR}/.bash_prompt" 2>/dev/null || true
-  run type wor
-  [ "$status" -eq 0 ]
 }

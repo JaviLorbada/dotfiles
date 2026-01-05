@@ -73,6 +73,9 @@ scrollback-limit = 50000
 # macOS-specific: Option key behavior
 macos-option-as-alt = true
 
+# Shift+Enter inserts newline without executing (multiline input)
+keybind = shift+enter=text:\n
+
 # ============================================================================
 # Quick Terminal (macOS)
 # ============================================================================
