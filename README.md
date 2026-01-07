@@ -235,7 +235,6 @@ source ~/.zshrc
 Some legacy bash files are included for compatibility but are no longer actively maintained:
 - `.bash_profile`
 - `.bashrc`
-- `.bash_prompt`
 
 ## Troubleshooting
 

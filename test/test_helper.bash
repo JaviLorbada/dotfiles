@@ -8,7 +8,6 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SHELL_FILES=(
   ".zshrc"
   ".bash_profile"
-  ".bash_prompt"
   ".bashrc"
   ".bash/git-prompt"
   "install.sh"

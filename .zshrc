@@ -135,10 +135,10 @@ alias glog="git log --graph --oneline --decorate --all"
 wo() {
   local code_dir=~/Documents/Workspace/
   if command -v fzf &> /dev/null; then
-    local dir=$(find "$code_dir" -type d -maxdepth 3 | grep -v /Pods | fzf --query="$*" --select-1 --exit-0)
+    local dir=$(command find "$code_dir" -type d -maxdepth 3 | grep -v /Pods | fzf --query="$*" --select-1 --exit-0)
     [[ -n "$dir" ]] && cd "$dir"
   else
-    cd "$(find "$code_dir" -type d -maxdepth 3 | grep -i "$*" | grep -v /Pods | head -1)" || return
+    cd "$(command find "$code_dir" -type d -maxdepth 3 | grep -i "$*" | grep -v /Pods | head -1)" || return
   fi
 }
 

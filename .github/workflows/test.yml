@@ -21,7 +21,6 @@ jobs:
           echo "Checking Bash syntax..."
           bash -n .bash_profile
           bash -n .bashrc
-          bash -n .bash_prompt
           bash -n .bash/git-prompt
           bash -n install.sh
           echo "All Bash files have valid syntax"
@@ -47,7 +46,7 @@ jobs:
       - name: Run ShellCheck
         run: |
           echo "Running ShellCheck..."
-          shellcheck .bash_profile .bash_prompt .bash/git-prompt install.sh
+          shellcheck .bash_profile .bash/git-prompt install.sh
           echo "ShellCheck passed"
 
   # ==========================================================================
@@ -104,6 +103,5 @@ jobs:
         run: |
           # These should parse correctly even on Linux
           bash -n .bash_profile
-          bash -n .bash_prompt
           zsh -n .zshrc
           echo "Linux compatibility check passed"

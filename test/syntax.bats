@@ -17,11 +17,6 @@ load test_helper
   [ "$status" -eq 0 ]
 }
 
-@test "bash_prompt has valid bash syntax" {
-  run bash -n "${DOTFILES_DIR}/.bash_prompt"
-  [ "$status" -eq 0 ]
-}
-
 @test "git-prompt has valid bash syntax" {
   run bash -n "${DOTFILES_DIR}/.bash/git-prompt"
   [ "$status" -eq 0 ]
@@ -53,14 +48,6 @@ load test_helper
     skip "shellcheck not installed"
   fi
   run shellcheck "${DOTFILES_DIR}/.bash_profile"
-  [ "$status" -eq 0 ]
-}
-
-@test "shellcheck passes on .bash_prompt" {
-  if ! command -v shellcheck &> /dev/null; then
-    skip "shellcheck not installed"
-  fi
-  run shellcheck "${DOTFILES_DIR}/.bash_prompt"
   [ "$status" -eq 0 ]
 }
 

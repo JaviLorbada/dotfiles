@@ -4,12 +4,9 @@ export ANDROID_HOME=/Applications/Android\ Studio.app/sdk/
 export GRADLE_HOME=/usr/bin/gradle
 export PATH=$PATH:$GRADLE_HOME/bin
 
-# Load ~/.bash_prompt and ~/.aliases 
-for file in ~/.{bash_prompt,aliases,profile}; do
-        [ -r "$file" ] && source "$file"
-done
-
-unset file
+# Colors for bash prompt
+RED="\[\033[0;31m\]"
+GREEN="\[\033[0;32m\]"
 
 # Case-insensitive globbing (used in pathname expansion)
 shopt -s nocaseglob

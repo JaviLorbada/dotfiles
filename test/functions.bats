@@ -15,25 +15,9 @@ teardown() {
 # openx() Function Tests
 # =============================================================================
 
-@test "openx function is defined in .bash_prompt" {
-  source "${DOTFILES_DIR}/.bash_prompt" 2>/dev/null || true
-  run type openx
-  [ "$status" -eq 0 ]
-}
-
 @test "openx function is defined in .zshrc" {
   run grep -q "^openx()" "${DOTFILES_DIR}/.zshrc"
   [ "$status" -eq 0 ]
-}
-
-@test "openx outputs 'Nothing found' when no Xcode project exists" {
-  cd "${TEST_TEMP_DIR}"
-
-  # Source the function (using bash version from .bash_prompt)
-  source "${DOTFILES_DIR}/.bash_prompt" 2>/dev/null || true
-
-  run openx
-  [[ "$output" == *"Nothing found"* ]]
 }
 
 @test "openx detects .xcworkspace files" {
@@ -54,34 +38,17 @@ teardown() {
   [ "$output" = "found" ]
 }
 
-@test "openx prefers .xcworkspace over .xcodeproj" {
-  cd "${TEST_TEMP_DIR}"
-  mkdir "Test.xcworkspace"
-  mkdir "Test.xcodeproj"
-
-  # Source the function and check behavior
-  source "${DOTFILES_DIR}/.bash_prompt" 2>/dev/null || true
-
-  # Mock 'open' command to just echo
-  open() { echo "opening: $1"; }
-  export -f open
-
-  run openx
-  [[ "$output" == *"Opening workspace"* ]]
-}
-
 # =============================================================================
 # wo() Workspace Function
 # =============================================================================
 
-@test "wo function is defined in .bash_prompt" {
-  source "${DOTFILES_DIR}/.bash_prompt" 2>/dev/null || true
-  run type wo
+@test "wo function is defined in .zshrc" {
+  run grep -q "^wo()" "${DOTFILES_DIR}/.zshrc"
   [ "$status" -eq 0 ]
 }
 
 @test "wo function uses Documents/Workspace path" {
-  run grep "Documents/Workspace" "${DOTFILES_DIR}/.bash_prompt"
+  run grep "Documents/Workspace" "${DOTFILES_DIR}/.zshrc"
   [ "$status" -eq 0 ]
 }
 

@@ -24,7 +24,6 @@ syntax:
 	@echo "==> Checking Bash syntax..."
 	@bash -n .bash_profile
 	@bash -n .bashrc
-	@bash -n .bash_prompt
 	@bash -n .bash/git-prompt
 	@bash -n install.sh
 	@echo "==> Checking Zsh syntax..."
@@ -35,7 +34,7 @@ syntax:
 shellcheck:
 	@echo "==> Running ShellCheck..."
 	@if command -v shellcheck >/dev/null 2>&1; then \
-		shellcheck .bash_profile .bash_prompt .bash/git-prompt install.sh; \
+		shellcheck .bash_profile .bash/git-prompt install.sh; \
 		echo "==> ShellCheck passed!"; \
 	else \
 		echo "    ShellCheck not installed, skipping (brew install shellcheck)"; \

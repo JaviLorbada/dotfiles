@@ -83,7 +83,6 @@ teardown() {
   local required_files=(
     ".zshrc"
     ".bash_profile"
-    ".bash_prompt"
     ".gitconfig"
     ".gitignore_global"
   )
