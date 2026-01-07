@@ -19,7 +19,7 @@ disable=SC1091
 disable=SC2034
 
 # SC2154: Variable referenced but not assigned
-# Reason: Color variables (GREEN, RED) defined at top of .bash_profile
+# Reason: Variables may be defined elsewhere or by the shell environment
 disable=SC2154
 
 # SC2148: Tips depend on target shell

@@ -16,15 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check Bash syntax
-        run: |
-          echo "Checking Bash syntax..."
-          bash -n .bash_profile
-          bash -n .bashrc
-          bash -n .bash/git-prompt
-          bash -n install.sh
-          echo "All Bash files have valid syntax"
-
       - name: Check Zsh syntax
         run: |
           echo "Checking Zsh syntax..."
@@ -46,7 +37,7 @@ jobs:
       - name: Run ShellCheck
         run: |
           echo "Running ShellCheck..."
-          shellcheck .bash_profile .bash/git-prompt install.sh
+          shellcheck install.sh
           echo "ShellCheck passed"
 
   # ==========================================================================
@@ -102,6 +93,6 @@ jobs:
       - name: Check syntax on Linux
         run: |
           # These should parse correctly even on Linux
-          bash -n .bash_profile
           zsh -n .zshrc
+          bash -n install.sh
           echo "Linux compatibility check passed"

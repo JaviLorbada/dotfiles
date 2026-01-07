@@ -230,12 +230,6 @@ source ~/.zshrc
 
 **IMPORTANT**: Never commit API tokens, passwords, or other secrets to the repository. Always use `~/.zshrc.local` for sensitive information, which is automatically excluded from git.
 
-## Legacy Files
-
-Some legacy bash files are included for compatibility but are no longer actively maintained:
-- `.bash_profile`
-- `.bashrc`
-
 ## Troubleshooting
 
 ### Icons not showing in eza/ls output?

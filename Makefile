@@ -21,20 +21,17 @@ test: syntax shellcheck bats
 
 # Syntax validation
 syntax:
-	@echo "==> Checking Bash syntax..."
-	@bash -n .bash_profile
-	@bash -n .bashrc
-	@bash -n .bash/git-prompt
-	@bash -n install.sh
 	@echo "==> Checking Zsh syntax..."
 	@zsh -n .zshrc 2>/dev/null || echo "    (zsh not available, skipping)"
+	@echo "==> Checking Bash syntax (install.sh)..."
+	@bash -n install.sh
 	@echo "==> Syntax check passed!"
 
 # ShellCheck static analysis
 shellcheck:
 	@echo "==> Running ShellCheck..."
 	@if command -v shellcheck >/dev/null 2>&1; then \
-		shellcheck .bash_profile .bash/git-prompt install.sh; \
+		shellcheck install.sh; \
 		echo "==> ShellCheck passed!"; \
 	else \
 		echo "    ShellCheck not installed, skipping (brew install shellcheck)"; \

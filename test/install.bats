@@ -82,7 +82,6 @@ teardown() {
 @test "all expected dotfiles exist" {
   local required_files=(
     ".zshrc"
-    ".bash_profile"
     ".gitconfig"
     ".gitignore_global"
   )
@@ -94,10 +93,6 @@ teardown() {
 
 @test ".zshrc.local.template exists for secrets" {
   [ -f "${DOTFILES_DIR}/.zshrc.local.template" ]
-}
-
-@test ".bash/git-prompt exists" {
-  [ -f "${DOTFILES_DIR}/.bash/git-prompt" ]
 }
 
 # =============================================================================

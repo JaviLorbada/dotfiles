@@ -7,9 +7,6 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # List of shell files to test
 SHELL_FILES=(
   ".zshrc"
-  ".bash_profile"
-  ".bashrc"
-  ".bash/git-prompt"
   "install.sh"
 )
 
