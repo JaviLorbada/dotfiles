@@ -22,6 +22,8 @@ window-padding-x = 8
 window-padding-y = 8
 window-decoration = true
 macos-titlebar-style = tabs
+window-save-state = always
+window-inherit-working-directory = true
 
 # ============================================================================
 # Shell Integration
@@ -46,6 +48,9 @@ clipboard-paste-protection = false
 # Mouse
 # ============================================================================
 mouse-hide-while-typing = true
+mouse-scroll-multiplier = 2
+focus-follows-mouse = true
+cursor-click-to-move = true
 
 # ============================================================================
 # Scrollback
@@ -79,6 +84,12 @@ keybind = shift+enter=text:\n
 # ============================================================================
 # Quick Terminal (macOS)
 # ============================================================================
-# Uncomment to enable quick terminal with a global hotkey
-# quick-terminal-position = top
-# quick-terminal-screen = main
+quick-terminal-position = top
+quick-terminal-screen = main
+
+# ============================================================================
+# Behavior
+# ============================================================================
+quit-after-last-window-closed = true
+confirm-close-surface = false
+unfocused-split-opacity = 0.8
