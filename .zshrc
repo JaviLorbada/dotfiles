@@ -130,6 +130,18 @@ alias gpr='git remote prune origin'
 alias glog="git log --graph --oneline --decorate --all"
 
 # Functions
+
+# wo = workspace - quickly jump to project directories
+wo() {
+  local code_dir=~/Documents/Workspace/
+  if command -v fzf &> /dev/null; then
+    local dir=$(find "$code_dir" -type d -maxdepth 3 | grep -v /Pods | fzf --query="$*" --select-1 --exit-0)
+    [[ -n "$dir" ]] && cd "$dir"
+  else
+    cd "$(find "$code_dir" -type d -maxdepth 3 | grep -i "$*" | grep -v /Pods | head -1)" || return
+  fi
+}
+
 openx(){
   if test -n "$(command find . -maxdepth 1 -name '*.xcworkspace' -print -quit)"; then
     echo "Opening workspace"
