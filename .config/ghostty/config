@@ -86,6 +86,7 @@ keybind = shift+enter=text:\n
 # ============================================================================
 quick-terminal-position = top
 quick-terminal-screen = main
+keybind = global:ctrl+grave_accent=toggle_quick_terminal
 
 # ============================================================================
 # Behavior
