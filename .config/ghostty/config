@@ -60,17 +60,16 @@ scrollback-limit = 50000
 # ============================================================================
 # Theme
 # ============================================================================
-# Ghostty has many built-in themes. Uncomment one to use:
-# theme = Catppuccin Mocha
+theme = Catppuccin Mocha
+
+# Other built-in themes:
 # theme = Dracula
 # theme = Gruvbox Dark
 # theme = Nord
 # theme = One Dark
 # theme = Solarized Dark
 # theme = Tokyo Night
-
-# Or use the system theme:
-# theme = auto
+# theme = auto (follows system light/dark)
 
 # ============================================================================
 # Keyboard
