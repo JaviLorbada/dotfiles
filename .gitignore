@@ -3,4 +3,5 @@
 .zshrc.local
 .env
 .env.local
-.claude/
+!.claude/
+!.claude/settings.local.json

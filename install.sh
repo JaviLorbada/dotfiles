@@ -1,7 +1,7 @@
 #!/bin/bash
 # Dotfiles installation script
 
-IGNORED_FILES=(. .. .git .gitignore .github test Makefile .shellcheckrc)
+IGNORED_FILES=(. .. .git .gitignore .github .claude test Makefile .shellcheckrc)
 
 # Check if a value exists in an array
 contains_element() {
@@ -47,6 +47,19 @@ if [ -d "$GHOSTTY_SOURCE_DIR" ]; then
         ln -s "$GHOSTTY_SOURCE_DIR" "$GHOSTTY_CONFIG_DIR"
         echo "Ghostty config linked successfully"
     fi
+fi
+
+# ============================================================================
+# Claude Code Configuration
+# ============================================================================
+CLAUDE_CONFIG_DIR="$HOME/.claude"
+CLAUDE_SOURCE_DIR="$(pwd)/.claude"
+
+if [ -d "$CLAUDE_SOURCE_DIR" ]; then
+    echo "Setting up Claude Code configuration..."
+    mkdir -p "$CLAUDE_CONFIG_DIR"
+    ln -sf "$CLAUDE_SOURCE_DIR/settings.local.json" "$CLAUDE_CONFIG_DIR/settings.local.json"
+    echo "Claude Code settings linked successfully"
 fi
 
 # ============================================================================
