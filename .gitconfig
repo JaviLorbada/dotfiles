@@ -53,6 +53,10 @@
     mf = merge --no-ff
     r = rebase
     prstash = "!f() { git fetch $1 refs/pull-requests/$2/from:$3; } ; f"
+    xpdiff = "!git-xcdiff"
+    xpdiffv = "!git-xcdiff --verbose"
+    xphtml = "!git-xcdiff --format htmlSideBySide --output-auto"
+    xptags = "!xcdiff -l"
 [push]
     default = simple
 [diff "localizablestrings"]
@@ -66,6 +70,9 @@
 	process = git-lfs filter-process
 [diff "plist"]
 	textconv = plutil -convert xml1 -o -
+[diff "pbxproj"]
+	textconv = plutil -convert xml1 -o -
+	cachetextconv = true
 [credential "https://github.com"]
 	helper = 
 	helper = !/opt/homebrew/bin/gh auth git-credential

@@ -36,7 +36,7 @@ Modern terminal dotfiles with zsh configuration, modern CLI tools, and sensible 
 
 2. **Install modern CLI tools**:
    ```bash
-   brew install eza fzf zoxide bat fd ripgrep fnm git-flow
+   brew install eza fzf zoxide bat fd ripgrep fnm git-flow xcdiff
    ```
 
 3. **Install zsh plugins**:
@@ -113,6 +113,7 @@ Modern terminal dotfiles with zsh configuration, modern CLI tools, and sensible 
 - **fzf**: Fuzzy finder for command history and files
 - **zoxide**: Smart directory navigation (tracks your most-used directories)
 - **fnm**: Fast Node.js version manager
+- **xcdiff**: Semantic diff for `.xcodeproj` files
 
 ### ZSH Plugins
 
@@ -143,7 +144,21 @@ Modern terminal dotfiles with zsh configuration, modern CLI tools, and sensible 
 - `gco`: git checkout
 - `gcb`: git checkout -b
 - `glog`: Beautiful git log graph
+- `xpd`: Compare `.xcodeproj` across refs with xcdiff
+- `xpdv`: Same as `xpd` with verbose output
+- `xph`: Generate an HTML side-by-side xcodeproj diff report
+- `xpdiff`: Same as `git xpdiff`
+- `xpdiffv`: Same as `git xpdiffv`
+- `xphtml`: Same as `git xphtml`
 - And many more!
+
+#### Xcode Project Diff Workflow
+- `git xpdiff [ref1] [ref2] [path/to/App.xcodeproj]`: semantic compare (defaults to `HEAD~1` vs `HEAD`)
+- `git xpdiffv [ref1] [ref2] [path/to/App.xcodeproj]`: verbose semantic compare
+- `git xphtml [ref1] [ref2] [path/to/App.xcodeproj]`: writes a side-by-side HTML report to a temp file and prints its path
+- `git-xcdiff [ref1] [ref2] [path/to/App.xcodeproj]`: direct helper command installed at `~/.local/bin/git-xcdiff`
+- `git xptags`: list available xcdiff comparator tags
+- Regular inline file diff for `project.pbxproj` is improved through a dedicated Git diff driver.
 
 #### Modern Aliases
 - `l`: List files with eza (icons + git status)
@@ -188,6 +203,7 @@ Check out [software.md](software.md) for recommended applications and tools.
 │       └── config            # Ghostty terminal configuration
 ├── .zshrc                    # Main ZSH configuration
 ├── .zshrc.local.template     # Template for local secrets
+├── .git-xcdiff               # Helper script used by git xpdiff aliases
 ├── .gitconfig                # Git configuration
 ├── .gitignore                # Files to ignore in repo
 ├── install.sh                # Installation script
@@ -262,7 +278,7 @@ ls ~/.oh-my-zsh/custom/plugins/
 
 Check they're installed:
 ```bash
-brew list | grep -E "eza|fzf|zoxide|bat|fd|ripgrep"
+brew list | grep -E "eza|fzf|zoxide|bat|fd|ripgrep|xcdiff"
 ```
 
 ### Symlinks not working?

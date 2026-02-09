@@ -135,6 +135,12 @@ alias gfs='git flow feature start'
 alias gff='git flow feature finish'
 alias gpr='git remote prune origin'
 alias glog="git log --graph --oneline --decorate --all"
+alias xpd='git xpdiff'
+alias xpdv='git xpdiffv'
+alias xph='git xphtml'
+alias xpdiff='git xpdiff'
+alias xpdiffv='git xpdiffv'
+alias xphtml='git xphtml'
 
 # Functions
 

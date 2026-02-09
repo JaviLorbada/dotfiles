@@ -36,7 +36,7 @@ Recommended applications and tools for macOS development setup.
 ### CLI Tools (via Homebrew)
 
 ```bash
-brew install eza fzf zoxide bat fd ripgrep fnm
+brew install eza fzf zoxide bat fd ripgrep fnm xcdiff
 ```
 
 * **eza**: Modern `ls` replacement with git integration and icons
@@ -46,6 +46,7 @@ brew install eza fzf zoxide bat fd ripgrep fnm
 * **fzf**: Fuzzy finder for command history and files
 * **zoxide**: Smart directory navigation
 * **fnm**: Fast Node.js version manager
+* **xcdiff**: Semantic diff tool for `.xcodeproj` files
 
 ### Package Managers & Containers
 
@@ -74,6 +75,7 @@ brew install eza fzf zoxide bat fd ripgrep fnm
 * **periphery**: <https://github.com/peripheryapp/periphery> (Dead code detection)
 * **xcbeautify**: <https://github.com/cpisciotta/xcbeautify> (Pretty Xcode output)
 * **lokalise2**: <https://lokalise.com/> (Localization management)
+* **xcdiff**: <https://github.com/bloomberg/xcdiff> (Xcode project semantic diff)
 
 ## System Utilities
 

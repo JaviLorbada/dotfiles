@@ -1,6 +1,8 @@
 #!/bin/bash
 # Dotfiles installation script
 
+DOTFILES_DIR="$(pwd)"
+
 IGNORED_FILES=(. .. .git .gitignore .github .claude test Makefile .shellcheckrc)
 
 # Check if a value exists in an array
@@ -26,6 +28,21 @@ for file in .*; do
 done
 
 source ~/.bash_profile
+
+# ============================================================================
+# Xcode project diff helper
+# ============================================================================
+LOCAL_BIN_DIR="$HOME/.local/bin"
+GIT_XCDIFF_SOURCE="$DOTFILES_DIR/.git-xcdiff"
+GIT_XCDIFF_TARGET="$LOCAL_BIN_DIR/git-xcdiff"
+
+if [ -f "$GIT_XCDIFF_SOURCE" ]; then
+    echo "Setting up git-xcdiff helper..."
+    mkdir -p "$LOCAL_BIN_DIR"
+    ln -sf "$GIT_XCDIFF_SOURCE" "$GIT_XCDIFF_TARGET"
+    chmod +x "$GIT_XCDIFF_SOURCE"
+    echo "git-xcdiff linked to $GIT_XCDIFF_TARGET"
+fi
 
 # ============================================================================
 # Ghostty Configuration

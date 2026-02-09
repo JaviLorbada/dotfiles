@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+Usage:
+  git xpdiff [ref1] [ref2] [path/to/Project.xcodeproj]
+  git xpdiffv [ref1] [ref2] [path/to/Project.xcodeproj]
+  git xphtml [ref1] [ref2] [path/to/Project.xcodeproj]
+
+Options:
+  -v, --verbose       Pass verbose mode to xcdiff
+  -f, --format VALUE  Output format (console, json, markdown, html, htmlSideBySide)
+  -o, --output PATH   Write output to PATH and print the path
+  --output-auto       Write output to an auto-generated temp file and print the path
+  -h, --help          Show this help
+EOF
+}
+
+require_cmd() {
+  local cmd="$1"
+  local hint="$2"
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "$cmd not found. $hint" >&2
+    exit 127
+  fi
+}
+
+verbose=0
+format="console"
+output=""
+output_auto=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -v|--verbose)
+      verbose=1
+      shift
+      ;;
+    -f|--format)
+      [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 2; }
+      format="$2"
+      shift 2
+      ;;
+    -o|--output)
+      [[ $# -ge 2 ]] || { echo "Missing value for $1" >&2; exit 2; }
+      output="$2"
+      shift 2
+      ;;
+    --output-auto)
+      output_auto=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      break
+      ;;
+    -*)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 2
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+ref1="${1:-HEAD~1}"
+ref2="${2:-HEAD}"
+project="${3:-}"
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  echo "Not inside a Git repository." >&2
+  exit 1
+fi
+
+require_cmd git "Install Git and ensure it is in PATH."
+require_cmd tar "Install tar and ensure it is in PATH."
+require_cmd xcdiff "Install it with: brew install xcdiff"
+
+if [[ -z "$project" ]]; then
+  project="$(git ls-tree -r --name-only "$ref2" 2>/dev/null | grep -m1 '\.xcodeproj/project\.pbxproj$' | sed 's#/project\.pbxproj$##' || true)"
+fi
+
+if [[ -z "$project" ]]; then
+  echo "No .xcodeproj found in $ref2. Pass a project path as the third argument." >&2
+  exit 1
+fi
+
+tmp_root="${TMPDIR:-/tmp}"
+tmp_root="${tmp_root%/}"
+
+tmp1="$(mktemp -d "${tmp_root}/xpdiff.XXXXXX")"
+tmp2="$(mktemp -d "${tmp_root}/xpdiff.XXXXXX")"
+
+cleanup() {
+  rm -rf "$tmp1" "$tmp2"
+}
+trap cleanup EXIT INT TERM
+
+if ! git archive "$ref1" "$project" 2>/dev/null | tar -xf - -C "$tmp1"; then
+  echo "Could not read $project from $ref1." >&2
+  exit 1
+fi
+
+if ! git archive "$ref2" "$project" 2>/dev/null | tar -xf - -C "$tmp2"; then
+  echo "Could not read $project from $ref2." >&2
+  exit 1
+fi
+
+if [[ "$output_auto" -eq 1 && -z "$output" ]]; then
+  extension="txt"
+  if [[ "$format" == "html" || "$format" == "htmlSideBySide" ]]; then
+    extension="html"
+  elif [[ "$format" == "json" ]]; then
+    extension="json"
+  elif [[ "$format" == "markdown" ]]; then
+    extension="md"
+  fi
+  output_base="$(mktemp "${tmp_root}/xcdiff-report.XXXXXX")"
+  output="${output_base}.${extension}"
+  mv "$output_base" "$output"
+fi
+
+cmd=(
+  xcdiff
+  -p1 "$tmp1/$project"
+  -p2 "$tmp2/$project"
+  -f "$format"
+)
+
+if [[ "$verbose" -eq 1 ]]; then
+  cmd+=(-v)
+fi
+
+if [[ -n "$output" ]]; then
+  "${cmd[@]}" > "$output"
+  echo "$output"
+else
+  "${cmd[@]}"
+fi
