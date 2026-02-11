@@ -1,4 +1,12 @@
 {
+  "model": "opus",
+  "statusLine": {
+    "type": "command",
+    "command": "dir=$(basename \"$PWD\"); branch=$(git symbolic-ref --short HEAD 2>/dev/null); if [ -n \"$branch\" ]; then dirty=$(git status --porcelain 2>/dev/null | head -1); if [ -n \"$dirty\" ]; then printf '\\033[36m%s\\033[0m \\033[34mgit:\\033[0m(\\033[31m%s\\033[0m) \\033[33m✗\\033[0m' \"$dir\" \"$branch\"; else printf '\\033[36m%s\\033[0m \\033[34mgit:\\033[0m(\\033[31m%s\\033[0m)' \"$dir\" \"$branch\"; fi; else printf '\\033[36m%s\\033[0m' \"$dir\"; fi"
+  },
+  "enabledPlugins": {
+    "swift-lsp@claude-plugins-official": true
+  },
   "permissions": {
     "allow": [
       "mcp__figma-desktop__get_screenshot",
@@ -8,6 +16,7 @@
       "mcp__shortcut__stories-create",
       "mcp__shortcut__epics-get-by-id",
       "mcp__shortcut__stories-update",
+      "WebSearch",
       "WebFetch(domain:www.shortcut.com)",
       "WebFetch(domain:ghostty.org)",
       "WebFetch(domain:developer.apple.com)",
@@ -100,7 +109,12 @@
       "Bash(ssh:*)",
       "Bash(scp:*)",
       "Bash(python3:*)",
-      "WebSearch",
+      "Bash(du:*)",
+      "Bash(find:*)",
+      "Bash(xargs:*)",
+      "Bash(grep:*)",
+      "Bash(pdftoppm:*)",
+      "Bash(pdfinfo:*)",
       "Bash(make test:*)",
       "Bash(make test-package:*)",
       "Bash(make test-package-build:*)",
