@@ -189,3 +189,7 @@ eval "$(fnm env --use-on-cd)" 2>/dev/null # Fast Node version manager
 
 # Load local secrets and machine-specific config (not tracked in git)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# ensure Gradle toolchain 17 is available by default
+export JAVA_HOME="/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
+export PATH="$JAVA_HOME/bin:$PATH"

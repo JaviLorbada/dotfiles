@@ -59,8 +59,6 @@
     xptags = "!xcdiff -l"
 [push]
     default = simple
-[diff "localizablestrings"]
-    textconv = "iconv -f utf-16 -t utf-8"
 [credential]
     helper = osxkeychain
 [filter "lfs"]
