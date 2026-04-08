@@ -1,0 +1,4 @@
+interface:
+  display_name: "Etsy Statements"
+  short_description: "Fill Etsy month sheets and export PDFs"
+  default_prompt: "Use $etsy-statement-workflow to import Etsy CSV statements into the target Google Sheet and export per-month PDFs."
