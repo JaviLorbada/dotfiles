@@ -82,22 +82,28 @@ fi
 # ============================================================================
 # Codex Skills
 # ============================================================================
+CODEX_SKILLS_SOURCE_DIR="$DOTFILES_DIR/skills"
 CODEX_SKILLS_TARGET_DIR="$HOME/.codex/skills"
-ETSY_SKILL_SOURCE_DIR="$DOTFILES_DIR/skills/etsy-statement-workflow"
-ETSY_SKILL_TARGET_DIR="$CODEX_SKILLS_TARGET_DIR/etsy-statement-workflow"
 
-if [ -d "$ETSY_SKILL_SOURCE_DIR" ]; then
-    echo "Setting up Codex Etsy statement skill..."
+if [ -d "$CODEX_SKILLS_SOURCE_DIR" ]; then
+    echo "Setting up Codex skills..."
     mkdir -p "$CODEX_SKILLS_TARGET_DIR"
 
-    if [ -e "$ETSY_SKILL_TARGET_DIR" ] && [ ! -L "$ETSY_SKILL_TARGET_DIR" ]; then
-        backup_target="${ETSY_SKILL_TARGET_DIR}.backup.$(date +%Y%m%d%H%M%S)"
-        echo "Codex Etsy statement skill directory exists, backing up to $backup_target"
-        mv "$ETSY_SKILL_TARGET_DIR" "$backup_target"
-    fi
+    for skill_dir in "$CODEX_SKILLS_SOURCE_DIR"/*; do
+        [ -d "$skill_dir" ] || continue
 
-    ln -sfn "$ETSY_SKILL_SOURCE_DIR" "$ETSY_SKILL_TARGET_DIR"
-    echo "Codex Etsy statement skill linked successfully"
+        skill_name="$(basename "$skill_dir")"
+        skill_target="$CODEX_SKILLS_TARGET_DIR/$skill_name"
+
+        if [ -e "$skill_target" ] && [ ! -L "$skill_target" ]; then
+            backup_target="${skill_target}.backup.$(date +%Y%m%d%H%M%S)"
+            echo "Codex skill directory exists for $skill_name, backing up to $backup_target"
+            mv "$skill_target" "$backup_target"
+        fi
+
+        ln -sfn "$skill_dir" "$skill_target"
+        echo "Codex skill linked: $skill_name"
+    done
 fi
 
 # ============================================================================

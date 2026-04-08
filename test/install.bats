@@ -139,12 +139,12 @@ teardown() {
 }
 
 @test "install.sh handles Codex skills configuration" {
-  run grep "ETSY_SKILL_TARGET_DIR" "${DOTFILES_DIR}/install.sh"
+  run grep "CODEX_SKILLS_SOURCE_DIR" "${DOTFILES_DIR}/install.sh"
   [ "$status" -eq 0 ]
 }
 
 @test "install.sh creates Codex skill symlinks" {
-  run grep 'ln -sfn "\$ETSY_SKILL_SOURCE_DIR" "\$ETSY_SKILL_TARGET_DIR"' "${DOTFILES_DIR}/install.sh"
+  run grep 'ln -sfn "\$skill_dir" "\$skill_target"' "${DOTFILES_DIR}/install.sh"
   [ "$status" -eq 0 ]
 }
 
