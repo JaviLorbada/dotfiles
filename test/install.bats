@@ -127,3 +127,28 @@ teardown() {
   run grep "shell-integration" "${DOTFILES_DIR}/.config/ghostty/config"
   [ "$status" -eq 0 ]
 }
+
+# =============================================================================
+# Codex Skills Tests
+# =============================================================================
+
+@test "Etsy statement skill exists in dotfiles" {
+  [ -f "${DOTFILES_DIR}/skills/etsy-statement-workflow/SKILL.md" ]
+  [ -f "${DOTFILES_DIR}/skills/etsy-statement-workflow/agents/openai.yaml" ]
+  [ -f "${DOTFILES_DIR}/skills/etsy-statement-workflow/scripts/extract_fee_rows.py" ]
+}
+
+@test "install.sh handles Codex skills configuration" {
+  run grep "ETSY_SKILL_TARGET_DIR" "${DOTFILES_DIR}/install.sh"
+  [ "$status" -eq 0 ]
+}
+
+@test "install.sh creates Codex skill symlinks" {
+  run grep 'ln -sfn "\$ETSY_SKILL_SOURCE_DIR" "\$ETSY_SKILL_TARGET_DIR"' "${DOTFILES_DIR}/install.sh"
+  [ "$status" -eq 0 ]
+}
+
+@test "install.sh backs up existing Codex skill directories" {
+  run grep "backup_target" "${DOTFILES_DIR}/install.sh"
+  [ "$status" -eq 0 ]
+}

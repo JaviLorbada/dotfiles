@@ -80,6 +80,27 @@ if [ -d "$CLAUDE_SOURCE_DIR" ]; then
 fi
 
 # ============================================================================
+# Codex Skills
+# ============================================================================
+CODEX_SKILLS_TARGET_DIR="$HOME/.codex/skills"
+ETSY_SKILL_SOURCE_DIR="$DOTFILES_DIR/skills/etsy-statement-workflow"
+ETSY_SKILL_TARGET_DIR="$CODEX_SKILLS_TARGET_DIR/etsy-statement-workflow"
+
+if [ -d "$ETSY_SKILL_SOURCE_DIR" ]; then
+    echo "Setting up Codex Etsy statement skill..."
+    mkdir -p "$CODEX_SKILLS_TARGET_DIR"
+
+    if [ -e "$ETSY_SKILL_TARGET_DIR" ] && [ ! -L "$ETSY_SKILL_TARGET_DIR" ]; then
+        backup_target="${ETSY_SKILL_TARGET_DIR}.backup.$(date +%Y%m%d%H%M%S)"
+        echo "Codex Etsy statement skill directory exists, backing up to $backup_target"
+        mv "$ETSY_SKILL_TARGET_DIR" "$backup_target"
+    fi
+
+    ln -sfn "$ETSY_SKILL_SOURCE_DIR" "$ETSY_SKILL_TARGET_DIR"
+    echo "Codex Etsy statement skill linked successfully"
+fi
+
+# ============================================================================
 # Xcode Snippets
 # ============================================================================
 SNIPPETS_URL="https://github.com/JaviLorbada/JLXcode-Snippets.git"
