@@ -11,6 +11,7 @@ Modern terminal dotfiles with zsh configuration, modern CLI tools, and sensible 
 - **Git Integration**: Comprehensive git aliases and enhanced status display
 - **macOS Optimized**: Finder shortcuts and system utilities
 - **Secure**: Local secrets management with .zshrc.local
+- **Codex Skills**: Repo-managed Codex skills installed into `~/.codex/skills`
 
 ## Quick Start
 
@@ -57,6 +58,8 @@ Modern terminal dotfiles with zsh configuration, modern CLI tools, and sensible 
    ```bash
    ./install.sh
    ```
+
+   This also links any skill stored under `skills/` into `~/.codex/skills/`.
 
 6. **Configure your terminal to use a Nerd Font**:
 
@@ -201,6 +204,8 @@ Check out [software.md](software.md) for recommended applications and tools.
 ├── .config/
 │   └── ghostty/
 │       └── config            # Ghostty terminal configuration
+├── skills/
+│   └── <skill-name>/         # Codex skills linked into ~/.codex/skills
 ├── .zshrc                    # Main ZSH configuration
 ├── .zshrc.local.template     # Template for local secrets
 ├── .git-xcdiff               # Helper script used by git xpdiff aliases
@@ -231,6 +236,16 @@ alias work="cd ~/Work/projects"
 ### Adding Your Own Aliases
 
 Edit `~/.zshrc` or add them to `~/.zshrc.local` for local-only aliases.
+
+### Adding Codex Skills
+
+Add a skill under `skills/<skill-name>/` and rerun `./install.sh`.
+
+The installer will:
+
+- create `~/.codex/skills` if needed
+- symlink each repo-managed skill into `~/.codex/skills/<skill-name>`
+- back up an existing non-symlink skill directory before replacing it
 
 ## Updating
 
