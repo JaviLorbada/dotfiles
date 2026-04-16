@@ -12,8 +12,6 @@ ZSH_THEME=robbyrussell
 # Note: zsh-syntax-highlighting must be last
 plugins=(
   git
-  docker
-  kubectl
   npm
   macos
   zsh-autosuggestions
