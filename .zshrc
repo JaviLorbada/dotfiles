@@ -94,7 +94,6 @@ alias rmdd="rm -rf ~/Library/Developer/Xcode/DerivedData/"
 command -v bat &> /dev/null && alias cat="bat --style=plain --paging=never"
 command -v fd &> /dev/null && alias find="fd"
 command -v rg &> /dev/null && alias grep="rg"
-command -v zoxide &> /dev/null && alias cd="z"
 
 # System Utilities
 alias tu='top -o cpu'  # Processes sorted by CPU
@@ -182,8 +181,9 @@ eval "$(rbenv init - zsh)" 2>/dev/null
 
 # Modern CLI tools
 eval "$(fzf --zsh)" 2>/dev/null           # Fuzzy finder
-eval "$(zoxide init zsh)" 2>/dev/null     # Smart cd replacement
 eval "$(fnm env --use-on-cd)" 2>/dev/null # Fast Node version manager
+# zoxide last: its hook must sit after any other chpwd hook (e.g. fnm's)
+eval "$(zoxide init zsh --cmd cd)" 2>/dev/null # Smart cd (also provides cdi)
 
 # Load local secrets and machine-specific config (not tracked in git)
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
