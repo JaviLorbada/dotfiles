@@ -57,9 +57,19 @@ load test_helper
   [ "$status" -eq 0 ]
 }
 
-@test ".zshrc has conditional zoxide alias" {
-  run grep "command -v zoxide" "${DOTFILES_DIR}/.zshrc"
+@test ".zshrc initializes zoxide as the cd command" {
+  run grep -E 'zoxide init zsh --cmd cd' "${DOTFILES_DIR}/.zshrc"
   [ "$status" -eq 0 ]
+}
+
+# zoxide's chpwd hook must be registered last or it warns on every shell start
+@test ".zshrc initializes zoxide after other chpwd hooks" {
+  local zoxide_line fnm_line
+  zoxide_line=$(grep -n 'zoxide init' "${DOTFILES_DIR}/.zshrc" | cut -d: -f1)
+  fnm_line=$(grep -n 'fnm env --use-on-cd' "${DOTFILES_DIR}/.zshrc" | cut -d: -f1)
+  [ -n "$zoxide_line" ]
+  [ -n "$fnm_line" ]
+  [ "$zoxide_line" -gt "$fnm_line" ]
 }
 
 # =============================================================================
