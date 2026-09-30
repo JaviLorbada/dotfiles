@@ -163,6 +163,33 @@ Modern terminal dotfiles with zsh configuration, modern CLI tools, and sensible 
 - `git xptags`: list available xcdiff comparator tags
 - Regular inline file diff for `project.pbxproj` is improved through a dedicated Git diff driver.
 
+#### Developer Disk Cleanup (`devclean`)
+
+Xcode, simulators and package managers quietly fill the disk: the Xcode compilation cache alone can grow by tens of GB in a few weeks. `devclean` shows where that space went and reclaims it. Everything it deletes is rebuilt or downloaded again when needed; the cost is slower first builds.
+
+- `devclean`: report only, nothing is deleted. Every item is listed with where it looks, and `none` when it finds nothing
+- `devclean --run`: delete the reported items (asks first; refuses while Xcode or Simulator is open)
+- `devclean --run --skip swiftpm-cache,homebrew`: leave some items alone
+- `devclean --help`: list every item it covers
+
+It covers Xcode DerivedData (including the compilation cache), simulators whose iOS version is gone, the physical device install cache, SwiftPM's cache and `.build` folders, Xcode `build` folders left by `xcodebuild`, Gradle `build` folders, npm, Homebrew, and CocoaPods/Carthage/Sourcery/Playwright/JetBrains Toolbox caches. It never touches Archives, working simulators, simulator runtimes, build folders tracked in git, or anything outside your home folder.
+
+The report also lists what `--run` never deletes but is worth a look: installed Xcodes (with the selected one marked, since each Xcode keeps its own compilation cache) and simulator runtimes (size, last used, simulator count). Runtimes unused for 90+ days or without simulators are flagged with the command to remove them yourself.
+
+A `build` folder only counts when it's clearly build output: next to a Gradle build file, or next to an Xcode project or `Package.swift` *and* holding Xcode's build output (`XCBuildData`, `*.build`, `*-iphoneos`...). Other folders that happen to be called `build` are left alone.
+
+Build folders are searched for in `~/Developer`, `~/Documents/Workspace` and `~/Projects`. Point it elsewhere with `--projects ~/code:~/work` or `export DEVCLEAN_PROJECT_DIRS=~/code:~/work`.
+
+`devclean` is a single self-contained script with no dependency on the rest of these dotfiles. To use it without installing them:
+
+```bash
+mkdir -p ~/.local/bin
+curl -fsSL https://raw.githubusercontent.com/JaviLorbada/dotfiles/main/bin/devclean -o ~/.local/bin/devclean
+chmod +x ~/.local/bin/devclean
+```
+
+(`~/.local/bin` must be on your `PATH`; otherwise run it as `~/.local/bin/devclean`.)
+
 #### Modern Aliases
 - `l`: List files with eza (icons + git status)
 - `la`: List all files including hidden
@@ -204,6 +231,8 @@ Check out [software.md](software.md) for recommended applications and tools.
 ├── .config/
 │   └── ghostty/
 │       └── config            # Ghostty terminal configuration
+├── bin/
+│   └── devclean              # Developer cache cleanup, linked into ~/.local/bin
 ├── skills/
 │   └── <skill-name>/         # Codex skills linked into ~/.codex/skills
 ├── .zshrc                    # Main ZSH configuration
