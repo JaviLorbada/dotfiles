@@ -129,6 +129,21 @@ teardown() {
 }
 
 # =============================================================================
+# devclean Tests
+# =============================================================================
+
+@test "devclean script exists in dotfiles" {
+  [ -f "${DOTFILES_DIR}/bin/devclean" ]
+}
+
+@test "install.sh links devclean into ~/.local/bin" {
+  run grep 'ln -sf "\$DEVCLEAN_SOURCE" "\$DEVCLEAN_TARGET"' "${DOTFILES_DIR}/install.sh"
+  [ "$status" -eq 0 ]
+  run grep 'DEVCLEAN_TARGET="\$LOCAL_BIN_DIR/devclean"' "${DOTFILES_DIR}/install.sh"
+  [ "$status" -eq 0 ]
+}
+
+# =============================================================================
 # Codex Skills Tests
 # =============================================================================
 

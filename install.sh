@@ -45,6 +45,20 @@ if [ -f "$GIT_XCDIFF_SOURCE" ]; then
 fi
 
 # ============================================================================
+# devclean (developer cache cleanup)
+# ============================================================================
+DEVCLEAN_SOURCE="$DOTFILES_DIR/bin/devclean"
+DEVCLEAN_TARGET="$LOCAL_BIN_DIR/devclean"
+
+if [ -f "$DEVCLEAN_SOURCE" ]; then
+    echo "Setting up devclean..."
+    mkdir -p "$LOCAL_BIN_DIR"
+    ln -sf "$DEVCLEAN_SOURCE" "$DEVCLEAN_TARGET"
+    chmod +x "$DEVCLEAN_SOURCE"
+    echo "devclean linked to $DEVCLEAN_TARGET"
+fi
+
+# ============================================================================
 # Ghostty Configuration
 # ============================================================================
 GHOSTTY_CONFIG_DIR="$HOME/.config/ghostty"
