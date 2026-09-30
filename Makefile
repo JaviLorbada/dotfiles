@@ -25,13 +25,15 @@ syntax:
 	@zsh -n .zshrc 2>/dev/null || echo "    (zsh not available, skipping)"
 	@echo "==> Checking Bash syntax (install.sh)..."
 	@bash -n install.sh
+	@echo "==> Checking Bash syntax (bin/devclean)..."
+	@bash -n bin/devclean
 	@echo "==> Syntax check passed!"
 
 # ShellCheck static analysis
 shellcheck:
 	@echo "==> Running ShellCheck..."
 	@if command -v shellcheck >/dev/null 2>&1; then \
-		shellcheck install.sh; \
+		shellcheck install.sh bin/devclean; \
 		echo "==> ShellCheck passed!"; \
 	else \
 		echo "    ShellCheck not installed, skipping (brew install shellcheck)"; \

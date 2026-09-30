@@ -1,0 +1,669 @@
+#!/usr/bin/env bash
+#
+# devclean: show how much space developer caches take up, and reclaim it.
+#
+# Everything it deletes gets rebuilt or downloaded again when needed.
+# It only reports unless you pass --run, and asks before deleting.
+
+set -euo pipefail
+
+items="derived-data simulators device-installs swiftpm-cache swiftpm-builds xcode-builds gradle-builds npm-cache homebrew tool-caches"
+
+run=0
+assume_yes=0
+skip=""
+project_dirs="${DEVCLEAN_PROJECT_DIRS:-$HOME/Developer:$HOME/Documents/Workspace:$HOME/Projects}"
+applications_dirs="${DEVCLEAN_APPLICATIONS_DIRS:-/Applications:$HOME/Applications}" # Where to look for Xcodes; the tests override it
+stale_days=90 # Runtimes unused for this long get flagged
+work_dir=""
+dim=""
+reset=""
+
+usage() {
+  cat <<'EOF'
+Usage: devclean [--run [--yes]] [--skip ITEMS] [--projects DIRS]
+
+Shows how much space developer caches take up. With --run, deletes them.
+Everything listed is rebuilt or downloaded again when needed; the cost is
+slower first builds and package resolves afterwards.
+
+Options:
+  --run            Delete the items in the report (asks first)
+  -y, --yes        Don't ask for confirmation (with --run)
+  --skip ITEMS     Comma-separated items to leave alone,
+                   e.g. --skip swiftpm-cache,homebrew
+  --projects DIRS  Colon-separated folders to search for build folders.
+                   Default: $DEVCLEAN_PROJECT_DIRS if set, otherwise
+                   ~/Developer:~/Documents/Workspace:~/Projects
+  -h, --help       Show this help
+
+Items:
+  derived-data     Xcode DerivedData, including the compilation cache
+  simulators       Simulators whose iOS version is no longer installed
+  device-installs  Cached app installs for physical devices
+  swiftpm-cache    SwiftPM's shared package clones
+  swiftpm-builds   .build folders next to a Package.swift
+  xcode-builds     build folders with Xcode output, next to an Xcode
+                   project, workspace or Package.swift
+  gradle-builds    build folders next to a Gradle build file
+  npm-cache        npm's download cache
+  homebrew         Old Homebrew versions and downloads
+  tool-caches      CocoaPods, Carthage, Sourcery, Playwright and
+                   JetBrains Toolbox caches
+
+The report also lists installed Xcodes and simulator runtimes, and flags
+runtimes unused for 90+ days. devclean never deletes those; it shows how
+to remove them yourself.
+
+Never touched: Xcode Archives (their dSYMs symbolicate crash reports),
+simulators that still work, simulator runtimes, build folders tracked in
+git, and anything outside your home folder.
+EOF
+}
+
+die() {
+  echo "devclean: $*" >&2
+  exit 1
+}
+
+warn() {
+  echo "devclean: $*" >&2
+}
+
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --run)
+        run=1
+        shift
+        ;;
+      -y|--yes)
+        assume_yes=1
+        shift
+        ;;
+      --skip)
+        [[ $# -ge 2 ]] || die "Missing value for $1"
+        skip="$2"
+        shift 2
+        ;;
+      --projects)
+        [[ $# -ge 2 ]] || die "Missing value for $1"
+        project_dirs="$2"
+        shift 2
+        ;;
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      *)
+        die "Unknown option: $1 (see devclean --help)"
+        ;;
+    esac
+  done
+}
+
+is_item() {
+  case " $items " in
+    *" $1 "*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+is_skipped() {
+  case ",$skip," in
+    *",$1,"*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+preflight() {
+  local id
+
+  [[ "$(uname -s)" == "Darwin" ]] || die "devclean only works on macOS."
+  [[ "$(id -u)" -ne 0 ]] || die "Don't run devclean with sudo. Everything it cleans belongs to your user."
+  [[ "$HOME" == /?* && -d "$HOME" ]] || die "HOME must be your home folder."
+
+  for id in $(printf '%s' "$skip" | tr ',' ' '); do
+    is_item "$id" || die "Unknown item '$id'. Items: $items"
+  done
+}
+
+# Last line of defence: nothing outside the home folder is ever listed or deleted.
+inside_home() {
+  case "$1" in
+    "$HOME"/?*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+# Prints each argument that exists inside the home folder.
+existing() {
+  local path
+  for path in "$@"; do
+    if [[ -e "$path" ]] && inside_home "$path"; then
+      printf '%s\n' "$path"
+    fi
+  done
+}
+
+# Shortens a path under the home folder to ~/...
+tilde() {
+  case "$1" in
+    "$HOME"|"$HOME"/*) printf '%s\n' "~${1#"$HOME"}" ;;
+    *) printf '%s\n' "$1" ;;
+  esac
+}
+
+expand_tilde() {
+  printf '%s\n' "${1/#\~/$HOME}"
+}
+
+derived_data_dir() {
+  local custom
+  custom="$(defaults read com.apple.dt.Xcode IDECustomDerivedDataLocation 2>/dev/null || true)"
+  case "$custom" in
+    /*|\~*) expand_tilde "$custom" ;;
+    *) printf '%s\n' "$HOME/Library/Developer/Xcode/DerivedData" ;;
+  esac
+}
+
+# Device folders of simulators whose runtime is gone.
+unavailable_simulators() {
+  local udid
+  command -v xcrun >/dev/null 2>&1 || return 0
+  { xcrun simctl list devices unavailable 2>/dev/null || true; } \
+    | sed -nE 's/.*\(([0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12})\).*/\1/p' \
+    | while IFS= read -r udid; do
+        existing "$HOME/Library/Developer/CoreSimulator/Devices/$udid"
+      done
+}
+
+# Prints the first entry directly inside folder $1 whose name matches the
+# find expression that follows.
+first_child() {
+  local dir="$1"
+  shift
+  /usr/bin/find "$dir" -mindepth 1 -maxdepth 1 \( "$@" \) -print -quit 2>/dev/null || true
+}
+
+is_swiftpm_build() {
+  [[ -f "$(dirname "$1")/Package.swift" ]]
+}
+
+is_gradle_build() {
+  local parent
+  parent="$(dirname "$1")"
+  [[ -f "$parent/build.gradle" || -f "$parent/build.gradle.kts" ||
+     -f "$parent/settings.gradle" || -f "$parent/settings.gradle.kts" ]]
+}
+
+# A build folder Xcode wrote (xcodebuild or the legacy build location): it sits
+# next to a project, workspace or package, and holds Xcode's build output.
+is_xcode_build() {
+  local parent
+  parent="$(dirname "$1")"
+  if is_gradle_build "$1"; then
+    return 1
+  fi
+  [[ -f "$parent/Package.swift" ||
+     -n "$(first_child "$parent" -name '*.xcodeproj' -o -name '*.xcworkspace')" ]] || return 1
+  [[ -n "$(first_child "$1" -name XCBuildData -o -name '*.build' -o -name EagerLinkingTBDs \
+    -o -name '*-iphoneos' -o -name '*-iphonesimulator')" ]]
+}
+
+is_tracked() {
+  [[ -n "$(git -C "$(dirname "$1")" ls-files -- "$(basename "$1")" 2>/dev/null)" ]]
+}
+
+# Prints the project folders that exist, as absolute paths.
+project_roots() {
+  local root
+  printf '%s\n' "$project_dirs" | tr ':' '\n' | while IFS= read -r root; do
+    [[ -n "$root" ]] || continue
+    (cd "$(expand_tilde "$root")" 2>/dev/null && pwd) || true
+  done
+}
+
+# Prints folders named $1 in the project folders. Skips .git, node_modules,
+# Pods, DerivedData and ~/Library, and never follows symlinks. The search
+# runs once per name and is reused.
+find_in_projects() {
+  local name="$1" cache="$work_dir/find-$1" root
+  if [[ ! -f "$cache" ]]; then
+    project_roots | while IFS= read -r root; do
+      /usr/bin/find "$root" \
+        \( -path "$HOME/Library" -o -name .git -o -name node_modules -o -name Pods -o -name DerivedData \) -prune \
+        -o -type d -name "$name" -prune -print 2>/dev/null || true
+    done > "$cache"
+  fi
+  cat "$cache"
+}
+
+# Prints folders named $1 in the project folders that pass the check $2 and
+# aren't tracked in git.
+project_build_dirs() {
+  local name="$1" check="$2" dir
+  find_in_projects "$name" | while IFS= read -r dir; do
+    if "$check" "$dir" && ! is_tracked "$dir" && inside_home "$dir"; then
+      printf '%s\n' "$dir"
+    fi
+  done
+}
+
+# Prints the paths an item deletes, one per line.
+collect() {
+  case "$1" in
+    derived-data)
+      existing "$(derived_data_dir)"
+      ;;
+    simulators)
+      unavailable_simulators
+      ;;
+    device-installs)
+      existing "$HOME/Library/Containers/com.apple.CoreDevice.CoreDeviceService/Data/Library/Caches/AppInstallationBinaryDeltas"
+      ;;
+    swiftpm-cache)
+      existing "$HOME/Library/Caches/org.swift.swiftpm"
+      ;;
+    swiftpm-builds)
+      project_build_dirs .build is_swiftpm_build
+      ;;
+    xcode-builds)
+      project_build_dirs build is_xcode_build
+      ;;
+    gradle-builds)
+      project_build_dirs build is_gradle_build
+      ;;
+    npm-cache)
+      existing "$HOME/.npm/_cacache" "$HOME/.npm/_npx"
+      ;;
+    homebrew)
+      : # Measured and cleaned by brew itself
+      ;;
+    tool-caches)
+      existing \
+        "$HOME/Library/Caches/CocoaPods" \
+        "$HOME/Library/Caches/org.carthage.CarthageKit" \
+        "$HOME/Library/Caches/Sourcery" \
+        "$HOME/Library/Caches/ms-playwright" \
+        "$HOME/Library/Caches/JetBrains/Toolbox/backup" \
+        "$HOME/Library/Caches/JetBrains/Toolbox/download"
+      ;;
+    *)
+      die "Unknown item: $1"
+      ;;
+  esac
+}
+
+# Item name, with how many folders it found when that's useful.
+label() {
+  local id="$1" count="$2" name
+  case "$id" in
+    derived-data) name="Xcode DerivedData" ;;
+    simulators) name="Simulators without a runtime" ;;
+    device-installs) name="Device install cache" ;;
+    swiftpm-cache) name="SwiftPM package cache" ;;
+    swiftpm-builds) name="SwiftPM .build folders" ;;
+    xcode-builds) name="Xcode build folders" ;;
+    gradle-builds) name="Gradle build folders" ;;
+    npm-cache) name="npm cache" ;;
+    homebrew) name="Homebrew old versions and downloads" ;;
+    tool-caches) name="Tool caches" ;;
+    *) name="$id" ;;
+  esac
+  case "$id" in
+    simulators|swiftpm-builds|xcode-builds|gradle-builds|tool-caches)
+      if [[ "$count" -gt 0 ]]; then
+        name="$name ($count)"
+      fi
+      ;;
+    *) ;;
+  esac
+  printf '%s\n' "$name"
+}
+
+# Where an item looks, shown under it in the report.
+where() {
+  case "$1" in
+    derived-data) tilde "$(derived_data_dir)" ;;
+    simulators) echo "$(tilde "$HOME/Library/Developer/CoreSimulator/Devices"), runtime no longer installed" ;;
+    device-installs) tilde "$HOME/Library/Containers/com.apple.CoreDevice.CoreDeviceService/Data/Library/Caches/AppInstallationBinaryDeltas" ;;
+    swiftpm-cache) tilde "$HOME/Library/Caches/org.swift.swiftpm" ;;
+    swiftpm-builds) echo ".build next to a Package.swift, in project folders" ;;
+    xcode-builds) echo "build with Xcode output next to a project or Package.swift, in project folders" ;;
+    gradle-builds) echo "build next to a Gradle build file, in project folders" ;;
+    npm-cache) echo "$(tilde "$HOME/.npm")/_cacache and _npx" ;;
+    homebrew)
+      if command -v brew >/dev/null 2>&1; then
+        echo "brew cleanup --prune=all"
+      else
+        echo "Homebrew not installed"
+      fi
+      ;;
+    tool-caches) echo "CocoaPods, Carthage, Sourcery, Playwright, JetBrains Toolbox in $(tilde "$HOME/Library/Caches")" ;;
+    *) echo "" ;;
+  esac
+}
+
+# One line saying which project folders get searched and which don't exist.
+describe_project_dirs() {
+  local root path found="" missing=""
+  while IFS= read -r root; do
+    [[ -n "$root" ]] || continue
+    path="$(expand_tilde "$root")"
+    if [[ -d "$path" ]]; then
+      found="${found:+$found, }$(tilde "$path")"
+    else
+      missing="${missing:+$missing, }$(tilde "$path")"
+    fi
+  done <<< "$(printf '%s\n' "$project_dirs" | tr ':' '\n')"
+
+  if [[ -z "$found" ]]; then
+    echo "Project folders: none found${missing:+ (looked for $missing)}."
+    echo "Use --projects or DEVCLEAN_PROJECT_DIRS to say where your code lives."
+  else
+    echo "Project folders: $found${missing:+ (not found: $missing)}"
+  fi
+}
+
+# Total size in KB of the paths on stdin.
+paths_kb() {
+  local path kb total=0
+  while IFS= read -r path; do
+    kb="$(du -sk "$path" 2>/dev/null | awk '{ print $1 }')" || true
+    total=$((total + ${kb:-0}))
+  done
+  echo "$total"
+}
+
+# Size in KB that `brew cleanup --prune=all` would free, from its dry run.
+homebrew_kb() {
+  if ! command -v brew >/dev/null 2>&1; then
+    echo 0
+    return 0
+  fi
+  { brew cleanup --prune=all --dry-run 2>/dev/null || true; } | awk '
+    /would free approximately/ {
+      for (i = 1; i <= NF; i++) if ($i == "approximately") v = $(i + 1)
+      u = v
+      sub(/^[0-9.]+/, "", u)
+      m = (u == "B") ? 1 / 1024 : (u == "KB") ? 1 : (u == "MB") ? 1024 : (u == "GB") ? 1048576 : (u == "TB") ? 1073741824 : 0
+      kb = (v + 0) * m
+    }
+    END { printf "%d\n", kb }'
+}
+
+human() {
+  awk -v kb="$1" 'BEGIN {
+    if (kb >= 1048576) printf "%.1f GB", kb / 1048576
+    else if (kb >= 1024) printf "%d MB", kb / 1024
+    else printf "%d KB", kb
+  }'
+}
+
+free_kb() {
+  df -k "$HOME" | awk 'NR == 2 { print $4 }'
+}
+
+# Resolves symlinks so two paths to the same app compare equal.
+real_path() {
+  (cd "$1" 2>/dev/null && pwd -P) || true
+}
+
+# Installed Xcodes, with the selected one marked. Never deleted.
+print_xcodes() {
+  local dir app selected version build kb opened note count=0
+
+  selected="$(xcode-select -p 2>/dev/null || true)"
+  selected="$(real_path "${selected%/Contents/Developer}")"
+
+  echo "Xcode versions"
+  while IFS= read -r dir; do
+    [[ -n "$dir" ]] || continue
+    for app in "$(expand_tilde "$dir")"/Xcode*.app; do
+      if [[ ! -d "$app" || -L "$app" ]]; then
+        continue
+      fi
+      count=$((count + 1))
+      version="$(plutil -extract CFBundleShortVersionString raw -o - "$app/Contents/Info.plist" 2>/dev/null)" || version="?"
+      build="$(plutil -extract ProductBuildVersion raw -o - "$app/Contents/version.plist" 2>/dev/null)" || build="?"
+      kb="$(du -sk "$app" 2>/dev/null | awk '{ print $1 }')" || true
+      opened="$(mdls -raw -name kMDItemLastUsedDate "$app" 2>/dev/null | cut -c1-10)" || true
+      case "$opened" in
+        [0-9][0-9][0-9][0-9]-*) note="opened $opened" ;;
+        *) note="last opened unknown" ;;
+      esac
+      if [[ -n "$selected" && "$(real_path "$app")" == "$selected" ]]; then
+        note="$note, selected"
+      fi
+      printf '  %-24s %10s   %s\n' "Xcode $version ($build)" "$(human "${kb:-0}")" "$note"
+      printf '    %s\n' "${dim}$(tilde "$app")${reset}"
+    done
+  done <<< "$(printf '%s\n' "$applications_dirs" | tr ':' '\n')"
+
+  if [[ "$count" -eq 0 ]]; then
+    echo "  None found."
+  elif [[ "$count" -gt 1 ]]; then
+    echo "  Each Xcode keeps its own compilation cache in DerivedData. To remove"
+    echo "  one you no longer need, quit it and move it to the Trash."
+  fi
+}
+
+# Simulator runtimes as tab-separated rows: id, name, size in KB, last used
+# date (- if never), days since last used (-1 if never), simulator count.
+runtime_rows() {
+  local runtimes devices
+  command -v xcrun >/dev/null 2>&1 || return 0
+  runtimes="$(xcrun simctl runtime list -j 2>/dev/null)" || return 0
+  [[ -n "$runtimes" ]] || return 0
+  devices="$(xcrun simctl list devices -j 2>/dev/null)" || true
+  [[ -n "$devices" ]] || devices="{}"
+  # JavaScript for Automation ships with macOS, so no jq or Python needed.
+  osascript -l JavaScript - "$runtimes" "$devices" 2>/dev/null <<'EOF' || true
+function run(argv) {
+  const runtimes = JSON.parse(argv[0]);
+  const devices = JSON.parse(argv[1]).devices || {};
+  const now = Date.now();
+  return Object.keys(runtimes).map((id) => {
+    const r = runtimes[id];
+    const identifier = r.runtimeIdentifier || '';
+    return {
+      id: id,
+      platform: identifier.replace(/^.*SimRuntime\./, '').split('-')[0],
+      version: r.version || '?',
+      build: r.build || '?',
+      kb: Math.round((r.sizeBytes || 0) / 1024),
+      used: r.lastUsedAt ? r.lastUsedAt.slice(0, 10) : '-',
+      days: r.lastUsedAt ? Math.floor((now - Date.parse(r.lastUsedAt)) / 86400000) : -1,
+      sims: (devices[identifier] || []).length,
+    };
+  }).sort((a, b) =>
+    a.platform.localeCompare(b.platform) ||
+    b.version.localeCompare(a.version, undefined, { numeric: true })
+  ).map((r) =>
+    [r.id, r.platform + ' ' + r.version + ' (' + r.build + ')', r.kb, r.used, r.days, r.sims].join('\t')
+  ).join('\n');
+}
+EOF
+}
+
+# Simulator runtimes, flagging ones that look unused. Never deleted.
+print_runtimes() {
+  local id name kb used days sims note reason count=0 flagged=0
+
+  echo "Simulator runtimes"
+  while IFS=$'\t' read -r id name kb used days sims; do
+    [[ -n "$id" ]] || continue
+    count=$((count + 1))
+
+    if [[ "$used" == "-" ]]; then
+      note="never used"
+    else
+      note="used $used"
+    fi
+    if [[ "$sims" -eq 1 ]]; then
+      note="$note, 1 simulator"
+    else
+      note="$note, $sims simulators"
+    fi
+    printf '  %-24s %10s   %s\n' "$name" "$(human "$kb")" "$note"
+
+    reason=""
+    if [[ "$days" -ge "$stale_days" ]]; then
+      reason="Not used in $days days"
+    fi
+    if [[ "$sims" -eq 0 && -n "$reason" ]]; then
+      reason="$reason, no simulators"
+    elif [[ "$sims" -eq 0 ]]; then
+      reason="No simulators"
+    fi
+    if [[ -n "$reason" ]]; then
+      flagged=$((flagged + 1))
+      printf '    %s\n' "${dim}$reason. Remove with: xcrun simctl runtime delete $id${reset}"
+    fi
+  done <<< "$(runtime_rows)"
+
+  if [[ "$count" -eq 0 ]]; then
+    echo "  None found."
+  elif [[ "$flagged" -eq 0 ]]; then
+    echo "  None look unused. To remove one anyway: Xcode > Settings > Components."
+  fi
+}
+
+print_extras() {
+  echo "Also worth a look. devclean never deletes these:"
+  echo
+  print_xcodes
+  echo
+  print_runtimes
+  echo
+}
+
+check_apps_closed() {
+  local app
+  for app in Xcode Simulator; do
+    if pgrep -xq "$app"; then
+      die "Quit $app first, then run devclean --run again."
+    fi
+  done
+}
+
+confirm() {
+  local answer=""
+  if [[ "$assume_yes" -eq 1 ]]; then
+    return 0
+  fi
+  [[ -t 0 ]] || die "Not deleting without confirmation. Add --yes to confirm."
+  printf 'Delete %s? [y/N] ' "$(human "$1")"
+  read -r answer || true
+  case "$answer" in
+    y|Y|yes|YES) ;;
+    *)
+      echo "Nothing deleted."
+      exit 0
+      ;;
+  esac
+}
+
+clean() {
+  local id="$1" list="$2" path
+  case "$id" in
+    simulators)
+      xcrun simctl delete unavailable || warn "Couldn't delete unavailable simulators."
+      ;;
+    homebrew)
+      brew cleanup --prune=all >/dev/null 2>&1 || warn "brew cleanup failed. Run it yourself to see why."
+      ;;
+    *)
+      while IFS= read -r path; do
+        if inside_home "$path"; then
+          rm -rf -- "$path" || warn "Couldn't fully delete $path"
+        fi
+      done < "$list"
+      ;;
+  esac
+}
+
+count_lines() {
+  wc -l < "$1" | tr -d ' '
+}
+
+main() {
+  local id list kb size total=0 found="" before
+
+  parse_args "$@"
+  preflight
+
+  if [[ "$run" -eq 1 ]] && ! { is_skipped derived-data && is_skipped simulators && is_skipped device-installs; }; then
+    check_apps_closed
+  fi
+
+  if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+    dim=$'\033[2m'
+    reset=$'\033[0m'
+  fi
+
+  work_dir="$(mktemp -d)"
+  trap 'rm -rf "$work_dir"' EXIT
+
+  echo "Scanning developer caches. Big ones can take a minute..."
+  describe_project_dirs
+  echo
+
+  for id in $items; do
+    if is_skipped "$id"; then
+      continue
+    fi
+    list="$work_dir/$id"
+    collect "$id" | sort -u > "$list"
+    if [[ "$id" == "homebrew" ]]; then
+      kb="$(homebrew_kb)"
+    else
+      kb="$(paths_kb < "$list")"
+    fi
+
+    size="none"
+    if [[ "$kb" -gt 0 ]]; then
+      size="$(human "$kb")"
+      total=$((total + kb))
+      found="$found $id"
+    fi
+    printf '  %-16s %-38s %10s\n' "$id" "$(label "$id" "$(count_lines "$list")")" "$size"
+    printf '  %-16s %s\n' "" "${dim}$(where "$id")${reset}"
+  done
+
+  printf '  %s\n' "------------------------------------------------------------------"
+  if [[ -z "$found" ]]; then
+    printf '  %-55s %10s\n' "Total" "none"
+  else
+    printf '  %-55s %10s\n' "Total" "$(human "$total")"
+  fi
+  printf '  %-55s %10s\n' "Free space now" "$(human "$(free_kb)")"
+  echo
+
+  if [[ "$run" -eq 0 ]]; then
+    print_extras
+    if [[ -z "$found" ]]; then
+      echo "Nothing to clean."
+    else
+      echo "Nothing deleted. Run 'devclean --run' to delete the caches in the first list."
+    fi
+    return 0
+  fi
+
+  if [[ -z "$found" ]]; then
+    echo "Nothing to clean."
+    return 0
+  fi
+
+  confirm "$total"
+  before="$(free_kb)"
+  for id in $found; do
+    echo "  Deleting $(label "$id" "$(count_lines "$work_dir/$id")")..."
+    clean "$id" "$work_dir/$id"
+  done
+  echo
+  echo "Done. Free space: $(human "$before") -> $(human "$(free_kb)")"
+}
+
+main "$@"

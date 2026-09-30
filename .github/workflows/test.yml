@@ -37,7 +37,7 @@ jobs:
       - name: Run ShellCheck
         run: |
           echo "Running ShellCheck..."
-          shellcheck install.sh
+          shellcheck install.sh bin/devclean
           echo "ShellCheck passed"
 
   # ==========================================================================

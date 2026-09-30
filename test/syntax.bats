@@ -24,6 +24,15 @@ load test_helper
   [ "$status" -eq 0 ]
 }
 
+@test "bin/devclean has valid syntax for the bash that ships with macOS" {
+  run /bin/bash -n "${DOTFILES_DIR}/bin/devclean"
+  [ "$status" -eq 0 ]
+}
+
+@test "bin/devclean is executable" {
+  [ -x "${DOTFILES_DIR}/bin/devclean" ]
+}
+
 # =============================================================================
 # ShellCheck Static Analysis
 # =============================================================================
@@ -33,5 +42,13 @@ load test_helper
     skip "shellcheck not installed"
   fi
   run shellcheck "${DOTFILES_DIR}/install.sh"
+  [ "$status" -eq 0 ]
+}
+
+@test "shellcheck passes on bin/devclean" {
+  if ! command -v shellcheck &> /dev/null; then
+    skip "shellcheck not installed"
+  fi
+  run shellcheck "${DOTFILES_DIR}/bin/devclean"
   [ "$status" -eq 0 ]
 }
