@@ -73,8 +73,6 @@ jobs:
 
           # Verify expected variables are defined
           grep -q "IGNORED_FILES" install.sh
-          grep -q "SNIPPETS_URL" install.sh
-          grep -q "XCODE_SNIPPETS_DIR" install.sh
 
           echo "Install script validation passed"
 

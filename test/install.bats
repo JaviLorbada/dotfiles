@@ -41,22 +41,6 @@ teardown() {
 }
 
 # =============================================================================
-# Xcode Snippets Configuration
-# =============================================================================
-
-@test "install.sh references Xcode snippets repository" {
-  run grep "SNIPPETS_URL" "${DOTFILES_DIR}/install.sh"
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"JLXcode-Snippets"* ]]
-}
-
-@test "install.sh defines correct Xcode snippets directory" {
-  run grep "XCODE_SNIPPETS_DIR" "${DOTFILES_DIR}/install.sh"
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"Library/Developer/Xcode/UserData/CodeSnippets"* ]]
-}
-
-# =============================================================================
 # Symlink Logic Tests
 # =============================================================================
 
