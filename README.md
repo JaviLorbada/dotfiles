@@ -172,7 +172,7 @@ Xcode, simulators and package managers quietly fill the disk: the Xcode compilat
 - `devclean --run --skip swiftpm-cache,homebrew`: leave some items alone
 - `devclean --help`: list every item it covers
 
-It covers Xcode DerivedData (including the compilation cache), simulators whose iOS version is gone, the physical device install cache, SwiftPM's cache and `.build` folders, Xcode `build` folders left by `xcodebuild`, Gradle `build` folders, npm, Homebrew, and CocoaPods/Carthage/Sourcery/Playwright/JetBrains Toolbox caches. It never touches Archives, working simulators, simulator runtimes, build folders tracked in git, or anything outside your home folder.
+It covers Xcode DerivedData (including the compilation cache), simulators whose iOS version is gone, the physical device install cache, Device Support symbols except the newest version for each device model (Xcode copies them again when that device connects), SwiftPM's cache and `.build` folders, Xcode `build` folders left by `xcodebuild`, Gradle `build` folders, npm, Homebrew, and CocoaPods/Carthage/Sourcery/Playwright/JetBrains Toolbox caches. It never touches Archives, working simulators, simulator runtimes, build folders tracked in git, or anything outside your home folder.
 
 The report also lists what `--run` never deletes but is worth a look: installed Xcodes (with the selected one marked, since each Xcode keeps its own compilation cache) and simulator runtimes (size, last used, simulator count). Runtimes unused for 90+ days or without simulators are flagged with the command to remove them yourself.
 

@@ -8,7 +8,7 @@
 set -euo pipefail
 unset CDPATH # Keeps every cd below going exactly where it says
 
-items="derived-data simulators device-installs swiftpm-cache swiftpm-builds xcode-builds gradle-builds npm-cache homebrew tool-caches"
+items="derived-data simulators device-installs device-support swiftpm-cache swiftpm-builds xcode-builds gradle-builds npm-cache homebrew tool-caches"
 
 run=0
 assume_yes=0
@@ -43,6 +43,8 @@ Items:
   derived-data     Xcode DerivedData, including the compilation cache
   simulators       Simulators whose iOS version is no longer installed
   device-installs  Cached app installs for physical devices
+  device-support   Device debug symbols, except the newest version for
+                   each device model (Xcode copies them again on connect)
   swiftpm-cache    SwiftPM's shared package clones
   swiftpm-builds   .build folders next to a Package.swift
   xcode-builds     build folders with Xcode output, next to an Xcode
@@ -193,6 +195,46 @@ unavailable_simulators() {
       done
 }
 
+# Device Support folders as tab-separated rows: OS, folder name, modification
+# time, path. Names look like "iPhone15,2 17.0 (21A329)", "17.0 (21A329)",
+# "16.4 (20E247) arm64e" or just "15.0" on macOS.
+device_support_entries() {
+  local os entry
+  for os in iOS watchOS tvOS visionOS macOS; do
+    for entry in "$HOME/Library/Developer/Xcode/$os DeviceSupport"/*; do
+      if [[ -d "$entry" && ! -L "$entry" ]]; then
+        printf '%s\t%s\t%s\t%s\n' "$os" "$(basename "$entry")" "$(stat -f %m "$entry")" "$entry"
+      fi
+    done
+  done
+}
+
+# Device Support folders older than the newest version for their OS and
+# device model. Ties on version go to the most recently modified build, and
+# every folder of the version kept (like an arm64e copy) stays. Names that
+# don't parse are never listed.
+old_device_support() {
+  local path
+  device_support_entries | awk -F '\t' '
+    {
+      n = split($2, t, " ")
+      if (t[1] ~ /^[0-9]+(\.[0-9]+)*$/) { device = ""; version = t[1]; build = t[2] }
+      else if (n >= 2 && t[2] ~ /^[0-9]+(\.[0-9]+)*$/) { device = t[1]; version = t[2]; build = t[3] }
+      else next
+      if (build != "" && build !~ /^\(.+\)$/) next
+      split(version, v, ".")
+      rank = sprintf("v%06d%06d%06d%06d%012d", v[1], v[2], v[3], v[4], $3)
+      group = $1 SUBSEP device
+      count++
+      groups[count] = group; ids[count] = version " " build; paths[count] = $4
+      if (!(group in best) || rank > best[group]) { best[group] = rank; keep[group] = version " " build }
+    }
+    END { for (i = 1; i <= count; i++) if (ids[i] != keep[groups[i]]) print paths[i] }
+  ' | while IFS= read -r path; do
+    existing "$path"
+  done
+}
+
 # Prints the first entry directly inside folder $1 whose name matches the
 # find expression that follows.
 first_child() {
@@ -317,6 +359,9 @@ collect() {
     device-installs)
       existing "$HOME/Library/Containers/com.apple.CoreDevice.CoreDeviceService/Data/Library/Caches/AppInstallationBinaryDeltas"
       ;;
+    device-support)
+      old_device_support
+      ;;
     swiftpm-cache)
       existing "$HOME/Library/Caches/org.swift.swiftpm"
       ;;
@@ -357,6 +402,7 @@ label() {
     derived-data) name="Xcode DerivedData" ;;
     simulators) name="Simulators without a runtime" ;;
     device-installs) name="Device install cache" ;;
+    device-support) name="Old Device Support" ;;
     swiftpm-cache) name="SwiftPM package cache" ;;
     swiftpm-builds) name="SwiftPM .build folders" ;;
     xcode-builds) name="Xcode build folders" ;;
@@ -367,7 +413,7 @@ label() {
     *) name="$id" ;;
   esac
   case "$id" in
-    simulators|swiftpm-builds|xcode-builds|gradle-builds|tool-caches)
+    simulators|device-support|swiftpm-builds|xcode-builds|gradle-builds|tool-caches)
       if [[ "$count" -gt 0 ]]; then
         name="$name ($count)"
       fi
@@ -383,6 +429,7 @@ where() {
     derived-data) tilde "$(derived_data_dir)" ;;
     simulators) echo "$(tilde "$HOME/Library/Developer/CoreSimulator/Devices"), runtime no longer installed" ;;
     device-installs) tilde "$HOME/Library/Containers/com.apple.CoreDevice.CoreDeviceService/Data/Library/Caches/AppInstallationBinaryDeltas" ;;
+    device-support) echo "$(tilde "$HOME/Library/Developer/Xcode")/<OS> DeviceSupport, all but the newest per device model" ;;
     swiftpm-cache) tilde "$HOME/Library/Caches/org.swift.swiftpm" ;;
     swiftpm-builds) echo ".build next to a Package.swift, in project folders" ;;
     xcode-builds) echo "build with Xcode output next to a project or Package.swift, in project folders" ;;
@@ -664,7 +711,7 @@ main() {
   parse_args "$@"
   preflight
 
-  if [[ "$run" -eq 1 ]] && ! { is_skipped derived-data && is_skipped simulators && is_skipped device-installs; }; then
+  if [[ "$run" -eq 1 ]] && ! { is_skipped derived-data && is_skipped simulators && is_skipped device-installs && is_skipped device-support; }; then
     check_apps_closed
   fi
 

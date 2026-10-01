@@ -595,3 +595,83 @@ STUB
   [ -d "${HOME}/${DERIVED_DATA_PATH}" ]
   [ -f "${HOME}/Library/Caches/org.swift.swiftpm/file" ]
 }
+
+# =============================================================================
+# Device Support
+# =============================================================================
+
+IOS_DEVICE_SUPPORT="Library/Developer/Xcode/iOS DeviceSupport"
+
+# Creates a Device Support folder modified at a touch -t time (default 2026-01-01)
+make_device_support() {
+  fill "$1"
+  touch -t "${2:-202601010000}" "$1"
+}
+
+@test "devclean deletes older Device Support but keeps the newest per device model" {
+  local ds="${HOME}/${IOS_DEVICE_SUPPORT}"
+  make_device_support "$ds/iPhone15,2 27.0 (24A435)"
+  make_device_support "$ds/iPhone15,2 26.6.1 (23G80)"
+  make_device_support "$ds/iPhone17,1 26.4 (23E244)"
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Old Device Support (1)"* ]] || false
+  [ ! -e "$ds/iPhone15,2 26.6.1 (23G80)" ]
+  [ -d "$ds/iPhone15,2 27.0 (24A435)" ]
+  [ -d "$ds/iPhone17,1 26.4 (23E244)" ]
+}
+
+@test "devclean compares Device Support versions as numbers" {
+  local ds="${HOME}/${IOS_DEVICE_SUPPORT}"
+  make_device_support "$ds/iPhone9,1 9.3 (13E233)"
+  make_device_support "$ds/iPhone9,1 10.0 (14A346)"
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [ ! -e "$ds/iPhone9,1 9.3 (13E233)" ]
+  [ -d "$ds/iPhone9,1 10.0 (14A346)" ]
+}
+
+@test "devclean handles Device Support names without a device and arch copies" {
+  local ds="${HOME}/${IOS_DEVICE_SUPPORT}"
+  make_device_support "$ds/16.4 (20E247) arm64e"
+  make_device_support "$ds/16.4 (20E247)"
+  make_device_support "$ds/15.5 (19F77)"
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [ ! -e "$ds/15.5 (19F77)" ]
+  [ -d "$ds/16.4 (20E247) arm64e" ]
+  [ -d "$ds/16.4 (20E247)" ]
+}
+
+@test "devclean keeps Device Support it can't parse and handles each OS separately" {
+  local xcode="${HOME}/Library/Developer/Xcode"
+  make_device_support "${xcode}/iOS DeviceSupport/Some Folder"
+  make_device_support "${xcode}/iOS DeviceSupport/iPhone15,2 Beta"
+  make_device_support "${xcode}/watchOS DeviceSupport/Watch6,1 11.0 (22R349)"
+  make_device_support "${xcode}/watchOS DeviceSupport/Watch6,1 10.5 (21T576)"
+  make_device_support "${xcode}/macOS DeviceSupport/15.0"
+  make_device_support "${xcode}/macOS DeviceSupport/14.5"
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [ -d "${xcode}/iOS DeviceSupport/Some Folder" ]
+  [ -d "${xcode}/iOS DeviceSupport/iPhone15,2 Beta" ]
+  [ ! -e "${xcode}/watchOS DeviceSupport/Watch6,1 10.5 (21T576)" ]
+  [ -d "${xcode}/watchOS DeviceSupport/Watch6,1 11.0 (22R349)" ]
+  [ ! -e "${xcode}/macOS DeviceSupport/14.5" ]
+  [ -d "${xcode}/macOS DeviceSupport/15.0" ]
+}
+
+@test "devclean keeps the most recently used build when a version has several" {
+  local ds="${HOME}/${IOS_DEVICE_SUPPORT}"
+  make_device_support "$ds/iPhone15,2 27.0 (24A5264n)" 202609010000
+  make_device_support "$ds/iPhone15,2 27.0 (24A435)" 202609200000
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [ ! -e "$ds/iPhone15,2 27.0 (24A5264n)" ]
+  [ -d "$ds/iPhone15,2 27.0 (24A435)" ]
+}
