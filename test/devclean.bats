@@ -462,3 +462,72 @@ JSON
   [ -z "$(grep "runtime delete" "$STUB_LOG")" ]
   [[ "$output" != *"Xcode versions"* ]] || false
 }
+
+# =============================================================================
+# Safety regressions
+# =============================================================================
+
+@test "devclean never deletes through a symlinked parent folder that leads outside home" {
+  fill "${TEST_TEMP_DIR}/outside-caches/org.swift.swiftpm"
+  mkdir -p "${HOME}/Library"
+  ln -s "${TEST_TEMP_DIR}/outside-caches" "${HOME}/Library/Caches"
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [ -f "${TEST_TEMP_DIR}/outside-caches/org.swift.swiftpm/file" ]
+}
+
+@test "devclean ignores a custom DerivedData path that climbs out of home with .." {
+  fill "${TEST_TEMP_DIR}/victim/DerivedData"
+  stub defaults <<< "echo '${HOME}/../victim/DerivedData'"
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [ -f "${TEST_TEMP_DIR}/victim/DerivedData/file" ]
+}
+
+@test "devclean leaves a DerivedData folder that is itself a symlink alone" {
+  fill "${TEST_TEMP_DIR}/external/DerivedData"
+  mkdir -p "${HOME}/Library/Developer/Xcode"
+  ln -s "${TEST_TEMP_DIR}/external/DerivedData" "${HOME}/${DERIVED_DATA_PATH}"
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [ -L "${HOME}/${DERIVED_DATA_PATH}" ]
+  [ -f "${TEST_TEMP_DIR}/external/DerivedData/file" ]
+}
+
+@test "devclean skips project folders that lead outside home" {
+  mkdir -p "${TEST_TEMP_DIR}/external-code/App"
+  touch "${TEST_TEMP_DIR}/external-code/App/Package.swift"
+  fill "${TEST_TEMP_DIR}/external-code/App/.build"
+  ln -s "${TEST_TEMP_DIR}/external-code" "${HOME}/Code"
+
+  run "$DEVCLEAN" --run --yes --projects "${HOME}/Code"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"outside your home folder, skipped: ~/Code"* ]] || false
+  [ -f "${TEST_TEMP_DIR}/external-code/App/.build/file" ]
+}
+
+@test "devclean checks each path again right before deleting it" {
+  fill "${HOME}/Library/Developer/CoreSimulator/Devices/F3062B90-F7DB-4DBF-A21D-9AF6BC6EC06D"
+  fill "${HOME}/Library/Caches/org.swift.swiftpm"
+  # Deleting simulators runs before the SwiftPM cache. Use that moment to swap
+  # ~/Library/Caches for a symlink to a folder outside home.
+  stub xcrun <<'STUB'
+case "$*" in
+  "simctl list devices unavailable")
+    echo "    Old (F3062B90-F7DB-4DBF-A21D-9AF6BC6EC06D) (Shutdown) (unavailable, runtime profile not found)"
+    ;;
+  "simctl delete unavailable")
+    mv "$HOME/Library/Caches" "$TEST_TEMP_DIR/moved-caches"
+    ln -s "$TEST_TEMP_DIR/moved-caches" "$HOME/Library/Caches"
+    ;;
+esac
+STUB
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"changed since the scan"* ]] || false
+  [ -f "${TEST_TEMP_DIR}/moved-caches/org.swift.swiftpm/file" ]
+}

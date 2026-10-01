@@ -6,6 +6,7 @@
 # It only reports unless you pass --run, and asks before deleting.
 
 set -euo pipefail
+unset CDPATH # Keeps every cd below going exactly where it says
 
 items="derived-data simulators device-installs swiftpm-cache swiftpm-builds xcode-builds gradle-builds npm-cache homebrew tool-caches"
 
@@ -15,6 +16,7 @@ skip=""
 project_dirs="${DEVCLEAN_PROJECT_DIRS:-$HOME/Developer:$HOME/Documents/Workspace:$HOME/Projects}"
 applications_dirs="${DEVCLEAN_APPLICATIONS_DIRS:-/Applications:$HOME/Applications}" # Where to look for Xcodes; the tests override it
 stale_days=90 # Runtimes unused for this long get flagged
+home_real="" # The home folder with symlinks resolved, set in preflight
 work_dir=""
 dim=""
 reset=""
@@ -122,27 +124,38 @@ preflight() {
   [[ "$(uname -s)" == "Darwin" ]] || die "devclean only works on macOS."
   [[ "$(id -u)" -ne 0 ]] || die "Don't run devclean with sudo. Everything it cleans belongs to your user."
   [[ "$HOME" == /?* && -d "$HOME" ]] || die "HOME must be your home folder."
+  home_real="$(physical_dir "$HOME")"
+  [[ "$home_real" == /?* ]] || die "HOME must be your home folder."
 
   for id in $(printf '%s' "$skip" | tr ',' ' '); do
     is_item "$id" || die "Unknown item '$id'. Items: $items"
   done
 }
 
-# Last line of defence: nothing outside the home folder is ever listed or deleted.
-inside_home() {
-  case "$1" in
-    "$HOME"/?*) return 0 ;;
+# The directory $1 with every symlink and .. resolved, or nothing if it
+# doesn't exist.
+physical_dir() {
+  (cd -P -- "$1" 2>/dev/null && pwd -P) || true
+}
+
+# Last line of defence, used when listing and again right before deleting:
+# prints the resolved path of directory $1 only if it isn't a symlink itself
+# and resolves to somewhere strictly inside the home folder.
+safe_path() {
+  local real
+  [[ -d "$1" && ! -L "$1" ]] || return 1
+  real="$(physical_dir "$1")"
+  case "$real" in
+    "$home_real"/?*) printf '%s\n' "$real" ;;
     *) return 1 ;;
   esac
 }
 
-# Prints each argument that exists inside the home folder.
+# Prints the resolved path of each argument that passes safe_path.
 existing() {
   local path
   for path in "$@"; do
-    if [[ -e "$path" ]] && inside_home "$path"; then
-      printf '%s\n' "$path"
-    fi
+    safe_path "$path" || true
   done
 }
 
@@ -215,12 +228,28 @@ is_tracked() {
   [[ -n "$(git -C "$(dirname "$1")" ls-files -- "$(basename "$1")" 2>/dev/null)" ]]
 }
 
-# Prints the project folders that exist, as absolute paths.
+# Where a project folder really is: its resolved path if it's inside the home
+# folder (the home folder itself counts), "outside" if it resolves elsewhere,
+# or nothing if it doesn't exist.
+resolve_project_dir() {
+  local real
+  real="$(physical_dir "$(expand_tilde "$1")")"
+  case "$real" in
+    "") ;;
+    "$home_real"|"$home_real"/*) printf '%s\n' "$real" ;;
+    *) echo "outside" ;;
+  esac
+}
+
+# Prints the resolved project folders to search.
 project_roots() {
-  local root
+  local root real
   printf '%s\n' "$project_dirs" | tr ':' '\n' | while IFS= read -r root; do
     [[ -n "$root" ]] || continue
-    (cd "$(expand_tilde "$root")" 2>/dev/null && pwd) || true
+    real="$(resolve_project_dir "$root")"
+    if [[ "$real" == /* ]]; then
+      printf '%s\n' "$real"
+    fi
   done
 }
 
@@ -232,20 +261,20 @@ find_in_projects() {
   if [[ ! -f "$cache" ]]; then
     project_roots | while IFS= read -r root; do
       /usr/bin/find "$root" \
-        \( -path "$HOME/Library" -o -name .git -o -name node_modules -o -name Pods -o -name DerivedData \) -prune \
+        \( -path "$home_real/Library" -o -name .git -o -name node_modules -o -name Pods -o -name DerivedData \) -prune \
         -o -type d -name "$name" -prune -print 2>/dev/null || true
     done > "$cache"
   fi
   cat "$cache"
 }
 
-# Prints folders named $1 in the project folders that pass the check $2 and
-# aren't tracked in git.
+# Prints folders named $1 in the project folders that are safe to delete,
+# pass the check $2 and aren't tracked in git.
 project_build_dirs() {
-  local name="$1" check="$2" dir
+  local name="$1" check="$2" dir real
   find_in_projects "$name" | while IFS= read -r dir; do
-    if "$check" "$dir" && ! is_tracked "$dir" && inside_home "$dir"; then
-      printf '%s\n' "$dir"
+    if real="$(safe_path "$dir")" && "$check" "$real" && ! is_tracked "$real"; then
+      printf '%s\n' "$real"
     fi
   done
 }
@@ -347,22 +376,31 @@ where() {
 
 # One line saying which project folders get searched and which don't exist.
 describe_project_dirs() {
-  local root path found="" missing=""
+  local root path found="" missing="" outside="" details
   while IFS= read -r root; do
     [[ -n "$root" ]] || continue
-    path="$(expand_tilde "$root")"
-    if [[ -d "$path" ]]; then
-      found="${found:+$found, }$(tilde "$path")"
-    else
-      missing="${missing:+$missing, }$(tilde "$path")"
-    fi
+    path="$(tilde "$(expand_tilde "$root")")"
+    case "$(resolve_project_dir "$root")" in
+      "") missing="${missing:+$missing, }$path" ;;
+      outside) outside="${outside:+$outside, }$path" ;;
+      *) found="${found:+$found, }$path" ;;
+    esac
   done <<< "$(printf '%s\n' "$project_dirs" | tr ':' '\n')"
 
   if [[ -z "$found" ]]; then
-    echo "Project folders: none found${missing:+ (looked for $missing)}."
+    details="${missing:+looked for $missing}"
+  else
+    details="${missing:+not found: $missing}"
+  fi
+  if [[ -n "$outside" ]]; then
+    details="${details:+$details; }outside your home folder, skipped: $outside"
+  fi
+
+  if [[ -z "$found" ]]; then
+    echo "Project folders: none found${details:+ ($details)}."
     echo "Use --projects or DEVCLEAN_PROJECT_DIRS to say where your code lives."
   else
-    echo "Project folders: $found${missing:+ (not found: $missing)}"
+    echo "Project folders: $found${details:+ ($details)}"
   fi
 }
 
@@ -576,8 +614,14 @@ clean() {
       ;;
     *)
       while IFS= read -r path; do
-        if inside_home "$path"; then
-          rm -rf -- "$path" || warn "Couldn't fully delete $path"
+        # Already gone, e.g. inside a folder deleted earlier in this run
+        [[ -e "$path" || -L "$path" ]] || continue
+        # The list holds resolved paths, so any change since the scan (like a
+        # folder swapped for a symlink) makes this check fail.
+        if [[ "$(safe_path "$path" || true)" == "$path" ]]; then
+          rm -rf -- "$path" || warn "Couldn't fully delete $(tilde "$path")"
+        else
+          warn "Skipped $(tilde "$path"): it changed since the scan and may now lead outside your home folder."
         fi
       done < "$list"
       ;;
