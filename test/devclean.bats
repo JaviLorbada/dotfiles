@@ -585,3 +585,13 @@ STUB
   [[ "$output" == *"couldn't check whether git tracks it"* ]] || false
   [ -f "${PROJECTS}/External/.build/file" ]
 }
+
+@test "devclean --skip accepts spaces after the commas" {
+  fill "${HOME}/${DERIVED_DATA_PATH}"
+  fill "${HOME}/Library/Caches/org.swift.swiftpm"
+
+  run "$DEVCLEAN" --run --yes --skip 'derived-data, swiftpm-cache'
+  [ "$status" -eq 0 ]
+  [ -d "${HOME}/${DERIVED_DATA_PATH}" ]
+  [ -f "${HOME}/Library/Caches/org.swift.swiftpm/file" ]
+}

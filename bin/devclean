@@ -127,6 +127,8 @@ preflight() {
   home_real="$(physical_dir "$HOME")"
   [[ "$home_real" == /?* ]] || die "HOME must be your home folder."
 
+  # "a, b" and "a,b" mean the same; matching in is_skipped relies on this.
+  skip="$(printf '%s' "$skip" | tr -d '[:space:]')"
   for id in $(printf '%s' "$skip" | tr ',' ' '); do
     is_item "$id" || die "Unknown item '$id'. Items: $items"
   done
