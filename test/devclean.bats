@@ -98,19 +98,19 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
 @test "devclean --help explains usage" {
   run "$DEVCLEAN" --help
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Usage: devclean"* ]]
+  [[ "$output" == *"Usage: devclean"* ]] || false
 }
 
 @test "devclean rejects unknown options" {
   run "$DEVCLEAN" --nope
   [ "$status" -ne 0 ]
-  [[ "$output" == *"Unknown option: --nope"* ]]
+  [[ "$output" == *"Unknown option: --nope"* ]] || false
 }
 
 @test "devclean rejects unknown --skip items" {
   run "$DEVCLEAN" --skip derived-data,nope
   [ "$status" -ne 0 ]
-  [[ "$output" == *"Unknown item 'nope'"* ]]
+  [[ "$output" == *"Unknown item 'nope'"* ]] || false
 }
 
 # =============================================================================
@@ -123,9 +123,9 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
 
   run "$DEVCLEAN"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"derived-data"* ]]
-  [[ "$output" == *"swiftpm-cache"* ]]
-  [[ "$output" == *"Nothing deleted"* ]]
+  [[ "$output" == *"derived-data"* ]] || false
+  [[ "$output" == *"swiftpm-cache"* ]] || false
+  [[ "$output" == *"Nothing deleted"* ]] || false
   [ -d "${HOME}/${DERIVED_DATA_PATH}" ]
   [ -d "${HOME}/Library/Caches/org.swift.swiftpm" ]
 }
@@ -133,7 +133,7 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
 @test "devclean says so when there is nothing to clean" {
   run "$DEVCLEAN"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Nothing to clean"* ]]
+  [[ "$output" == *"Nothing to clean"* ]] || false
 }
 
 @test "devclean lists every item and where it looks, even when empty" {
@@ -141,11 +141,11 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
   [ "$status" -eq 0 ]
   for id in derived-data simulators device-installs swiftpm-cache swiftpm-builds \
             xcode-builds gradle-builds npm-cache homebrew tool-caches; do
-    [[ "$output" == *"$id"* ]]
+    [[ "$output" == *"$id"* ]] || false
   done
-  [[ "$output" == *"~/Library/Developer/Xcode/DerivedData"* ]]
-  [[ "$output" == *"~/Library/Caches/org.swift.swiftpm"* ]]
-  [[ "$(grep -c ' none$' <<< "$output")" -ge 10 ]]
+  [[ "$output" == *"~/Library/Developer/Xcode/DerivedData"* ]] || false
+  [[ "$output" == *"~/Library/Caches/org.swift.swiftpm"* ]] || false
+  [[ "$(grep -c ' none$' <<< "$output")" -ge 10 ]] || false
 }
 
 @test "devclean shows which project folders it searches" {
@@ -153,20 +153,20 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
 
   run "$DEVCLEAN"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Project folders: ~/Workspace (not found: ~/Missing)"* ]]
+  [[ "$output" == *"Project folders: ~/Workspace (not found: ~/Missing)"* ]] || false
 }
 
 @test "devclean says when no project folder exists" {
   run "$DEVCLEAN" --projects "${HOME}/Nope"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Project folders: none found (looked for ~/Nope)"* ]]
-  [[ "$output" == *"--projects"* ]]
+  [[ "$output" == *"Project folders: none found (looked for ~/Nope)"* ]] || false
+  [[ "$output" == *"--projects"* ]] || false
 }
 
 @test "devclean skips items with --skip in the report too" {
   run "$DEVCLEAN" --skip homebrew
   [ "$status" -eq 0 ]
-  [[ "$output" != *"homebrew"* ]]
+  [[ "$output" != *"homebrew"* ]] || false
 }
 
 @test "devclean expands ~ in DEVCLEAN_PROJECT_DIRS" {
@@ -176,7 +176,7 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
 
   run "$DEVCLEAN"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"swiftpm-builds"* ]]
+  [[ "$output" == *"swiftpm-builds"* ]] || false
 }
 
 @test "devclean --projects overrides the project folders" {
@@ -186,7 +186,7 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
 
   run "$DEVCLEAN" --projects "${HOME}/Code"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"SwiftPM .build folders (1)"* ]]
+  [[ "$output" == *"SwiftPM .build folders (1)"* ]] || false
 }
 
 # =============================================================================
@@ -202,7 +202,7 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
 
   run "$DEVCLEAN" --run --yes
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Done. Free space:"* ]]
+  [[ "$output" == *"Done. Free space:"* ]] || false
   [ ! -e "${HOME}/${DERIVED_DATA_PATH}" ]
   [ ! -e "${HOME}/Library/Containers/com.apple.CoreDevice.CoreDeviceService/Data/Library/Caches/AppInstallationBinaryDeltas" ]
   [ ! -e "${HOME}/Library/Caches/org.swift.swiftpm" ]
@@ -216,7 +216,7 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
 
   run bash -c "'$DEVCLEAN' --run < /dev/null"
   [ "$status" -ne 0 ]
-  [[ "$output" == *"--yes"* ]]
+  [[ "$output" == *"--yes"* ]] || false
   [ -d "${HOME}/${DERIVED_DATA_PATH}" ]
 }
 
@@ -226,7 +226,7 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
 
   run "$DEVCLEAN" --run --yes
   [ "$status" -ne 0 ]
-  [[ "$output" == *"Quit Xcode"* ]]
+  [[ "$output" == *"Quit Xcode"* ]] || false
   [ -d "${HOME}/${DERIVED_DATA_PATH}" ]
 }
 
@@ -276,7 +276,7 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
 
   run "$DEVCLEAN" --run --yes
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Xcode build folders (2)"* ]]
+  [[ "$output" == *"Xcode build folders (2)"* ]] || false
   [ ! -e "${PROJECTS}/App/build" ]
   [ ! -e "${PROJECTS}/App/Packages/Domain/build" ]
   [ -d "${PROJECTS}/App/App.xcodeproj" ]
@@ -308,8 +308,8 @@ DERIVED_DATA_PATH="Library/Developer/Xcode/DerivedData"
 
   run "$DEVCLEAN"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Gradle build folders (1)"* ]]
-  [[ "$output" != *"Xcode build folders (1)"* ]]
+  [[ "$output" == *"Gradle build folders (1)"* ]] || false
+  [[ "$output" != *"Xcode build folders (1)"* ]] || false
 }
 
 @test "devclean keeps build folders tracked in git" {
@@ -380,7 +380,7 @@ EOF
 
   run "$DEVCLEAN" --run --yes
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Simulators without a runtime (1)"* ]]
+  [[ "$output" == *"Simulators without a runtime (1)"* ]] || false
   grep -q "xcrun simctl delete unavailable" "$STUB_LOG"
 }
 
@@ -394,7 +394,7 @@ EOF
 
   run "$DEVCLEAN" --run --yes
   [ "$status" -eq 0 ]
-  [[ "$output" == *"1.5 GB"* ]]
+  [[ "$output" == *"1.5 GB"* ]] || false
   grep -qx "brew cleanup --prune=all" "$STUB_LOG"
 }
 
@@ -409,11 +409,11 @@ EOF
 
   run "$DEVCLEAN"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Xcode 27.0 (27A266a)"* ]]
-  [[ "$output" == *"Xcode 27.1 (27A9269)"* ]]
-  [[ "$(grep -c 'selected' <<< "$output")" -eq 1 ]]
-  [[ "$(grep 'Xcode 27.0' <<< "$output")" == *"selected"* ]]
-  [[ "$output" == *"Each Xcode keeps its own compilation cache"* ]]
+  [[ "$output" == *"Xcode 27.0 (27A266a)"* ]] || false
+  [[ "$output" == *"Xcode 27.1 (27A9269)"* ]] || false
+  [[ "$(grep -c 'selected' <<< "$output")" -eq 1 ]] || false
+  [[ "$(grep 'Xcode 27.0' <<< "$output")" == *"selected"* ]] || false
+  [[ "$output" == *"Each Xcode keeps its own compilation cache"* ]] || false
 }
 
 @test "devclean only mentions the compilation cache with more than one Xcode" {
@@ -421,8 +421,8 @@ EOF
 
   run "$DEVCLEAN"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"Xcode 27.0 (27A266a)"* ]]
-  [[ "$output" != *"Each Xcode keeps its own compilation cache"* ]]
+  [[ "$output" == *"Xcode 27.0 (27A266a)"* ]] || false
+  [[ "$output" != *"Each Xcode keeps its own compilation cache"* ]] || false
 }
 
 @test "devclean lists simulator runtimes and flags unused ones" {
@@ -430,10 +430,10 @@ EOF
 
   run "$DEVCLEAN"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"iOS 27.0 (24A434)"*"8.0 GB"*"used $(date -u +%Y-%m-%d), 2 simulators"* ]]
-  [[ "$output" == *"iOS 17.5 (21F79)"*"used 2020-01-01, 0 simulators"* ]]
-  [[ "$output" == *"no simulators. Remove with: xcrun simctl runtime delete OLD-RUNTIME"* ]]
-  [[ "$output" != *"delete RECENT-RUNTIME"* ]]
+  [[ "$output" == *"iOS 27.0 (24A434)"*"8.0 GB"*"used $(date -u +%Y-%m-%d), 2 simulators"* ]] || false
+  [[ "$output" == *"iOS 17.5 (21F79)"*"used 2020-01-01, 0 simulators"* ]] || false
+  [[ "$output" == *"no simulators. Remove with: xcrun simctl runtime delete OLD-RUNTIME"* ]] || false
+  [[ "$output" != *"delete RECENT-RUNTIME"* ]] || false
 }
 
 @test "devclean says when no runtime looks unused" {
@@ -446,7 +446,7 @@ JSON
 
   run "$DEVCLEAN"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"None look unused"* ]]
+  [[ "$output" == *"None look unused"* ]] || false
 }
 
 @test "devclean never deletes Xcodes or runtimes" {
@@ -460,5 +460,5 @@ JSON
   [ -d "${HOME}/Applications/Xcode.app" ]
   [ -d "${HOME}/Applications/Xcode-27.1.app" ]
   [ -z "$(grep "runtime delete" "$STUB_LOG")" ]
-  [[ "$output" != *"Xcode versions"* ]]
+  [[ "$output" != *"Xcode versions"* ]] || false
 }
