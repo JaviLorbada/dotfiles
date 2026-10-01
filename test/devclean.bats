@@ -531,3 +531,57 @@ STUB
   [[ "$output" == *"changed since the scan"* ]] || false
   [ -f "${TEST_TEMP_DIR}/moved-caches/org.swift.swiftpm/file" ]
 }
+
+@test "devclean keeps build folders when git can't tell whether they're tracked" {
+  mkdir -p "${PROJECTS}/Broken"
+  touch "${PROJECTS}/Broken/Package.swift"
+  fill "${PROJECTS}/Broken/.build"
+  git -C "${PROJECTS}/Broken" init -q
+  git -C "${PROJECTS}/Broken" add -f .build/file
+  echo "corrupt" > "${PROJECTS}/Broken/.git/index"
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"couldn't check whether git tracks it"* ]] || false
+  [ -f "${PROJECTS}/Broken/.build/file" ]
+}
+
+@test "devclean still deletes untracked build folders inside a healthy git repo" {
+  mkdir -p "${PROJECTS}/Healthy"
+  touch "${PROJECTS}/Healthy/Package.swift"
+  fill "${PROJECTS}/Healthy/.build"
+  git -C "${PROJECTS}/Healthy" init -q
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [ ! -e "${PROJECTS}/Healthy/.build" ]
+}
+
+@test "devclean asks git about build folders when GIT_DIR and GIT_WORK_TREE are set" {
+  local work_tree="${PROJECTS}/Detached" git_dir="${TEST_TEMP_DIR}/metadata.git"
+  mkdir -p "$work_tree"
+  touch "${work_tree}/Package.swift"
+  fill "${work_tree}/.build"
+  git --git-dir="$git_dir" --work-tree="$work_tree" init -q
+  git -C "$work_tree" --git-dir="$git_dir" --work-tree="$work_tree" add -f .build/file
+  [ ! -e "${work_tree}/.git" ]
+  export GIT_DIR="$git_dir" GIT_WORK_TREE="$work_tree"
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  # Kept because git answered "tracked", not because the query failed
+  [[ "$output" != *"couldn't check whether git tracks it"* ]] || false
+  [ -f "${work_tree}/.build/file" ]
+}
+
+@test "devclean keeps build folders when .git is a symlink to a missing disk" {
+  mkdir -p "${PROJECTS}/External"
+  touch "${PROJECTS}/External/Package.swift"
+  fill "${PROJECTS}/External/.build"
+  ln -s "${TEST_TEMP_DIR}/unplugged-disk/External.git" "${PROJECTS}/External/.git"
+
+  run "$DEVCLEAN" --run --yes
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"couldn't check whether git tracks it"* ]] || false
+  [ -f "${PROJECTS}/External/.build/file" ]
+}

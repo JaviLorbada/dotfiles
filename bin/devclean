@@ -224,8 +224,32 @@ is_xcode_build() {
     -o -name '*-iphoneos' -o -name '*-iphonesimulator')" ]]
 }
 
-is_tracked() {
-  [[ -n "$(git -C "$(dirname "$1")" ls-files -- "$(basename "$1")" 2>/dev/null)" ]]
+# Succeeds only when it's certain git tracks nothing in folder $1: no git
+# repository contains it, or git answers that none of its files are tracked.
+# If git can't answer (corrupt index, unsafe ownership, a .git symlink to a
+# missing disk, git missing), warns and fails so the folder is kept.
+is_untracked() {
+  local parent probe tracked
+  parent="$(dirname "$1")"
+
+  # Shortcut: no repository can contain the folder when git isn't pointed at
+  # one through the environment and no parent has a .git entry, counting
+  # .git symlinks whose target is missing.
+  if [[ -z "${GIT_DIR:-}" && -z "${GIT_WORK_TREE:-}" ]]; then
+    probe="$parent"
+    while [[ ! -e "$probe/.git" && ! -L "$probe/.git" ]]; do
+      if [[ "$probe" == "/" ]]; then
+        return 0
+      fi
+      probe="$(dirname "$probe")"
+    done
+  fi
+
+  if ! tracked="$(git -C "$parent" ls-files -- "$(basename "$1")" 2>/dev/null)"; then
+    warn "Skipped $(tilde "$1"): couldn't check whether git tracks it."
+    return 1
+  fi
+  [[ -z "$tracked" ]]
 }
 
 # Where a project folder really is: its resolved path if it's inside the home
@@ -273,7 +297,7 @@ find_in_projects() {
 project_build_dirs() {
   local name="$1" check="$2" dir real
   find_in_projects "$name" | while IFS= read -r dir; do
-    if real="$(safe_path "$dir")" && "$check" "$real" && ! is_tracked "$real"; then
+    if real="$(safe_path "$dir")" && "$check" "$real" && is_untracked "$real"; then
       printf '%s\n' "$real"
     fi
   done
