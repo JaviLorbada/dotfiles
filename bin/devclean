@@ -14,7 +14,7 @@ items="derived-data simulators device-installs device-support swiftpm-cache swif
 run=0
 assume_yes=0
 skip=""
-project_dirs="${DEVCLEAN_PROJECT_DIRS:-$HOME/Developer:$HOME/Documents/Workspace:$HOME/Projects}"
+project_dirs="${DEVCLEAN_PROJECT_DIRS:-$HOME/Developer:$HOME/Development:$HOME/dev:$HOME/Documents/Workspace:$HOME/Projects}"
 applications_dirs="${DEVCLEAN_APPLICATIONS_DIRS:-/Applications:$HOME/Applications}" # Where to look for Xcodes; the tests override it
 stale_days=90 # Runtimes unused for this long get flagged
 home_real="" # The home folder with symlinks resolved, set in preflight
@@ -37,7 +37,7 @@ Options:
                    e.g. --skip swiftpm-cache,homebrew
   --projects DIRS  Colon-separated folders to search for build folders.
                    Default: $DEVCLEAN_PROJECT_DIRS if set, otherwise
-                   ~/Developer:~/Documents/Workspace:~/Projects
+                   ~/Developer:~/Development:~/dev:~/Documents/Workspace:~/Projects
   -h, --help       Show this help
 
 Items:

@@ -180,7 +180,7 @@ The report also lists what `--run` never deletes but is worth a look: installed 
 
 A `build` folder only counts when it's clearly build output: next to a Gradle build file, or next to an Xcode project or `Package.swift` *and* holding Xcode's build output (`XCBuildData`, `*.build`, `*-iphoneos`...). Other folders that happen to be called `build` are left alone.
 
-Build folders are searched for in `~/Developer`, `~/Documents/Workspace` and `~/Projects`. Point it elsewhere with `--projects ~/code:~/work` or `export DEVCLEAN_PROJECT_DIRS=~/code:~/work`.
+Build folders are searched for in `~/Developer`, `~/Development`, `~/dev`, `~/Documents/Workspace` and `~/Projects`. Point it elsewhere with `--projects ~/code:~/work` or `export DEVCLEAN_PROJECT_DIRS=~/code:~/work`.
 
 `devclean` is a single self-contained script with no dependency on the rest of these dotfiles. To use it without installing them:
 

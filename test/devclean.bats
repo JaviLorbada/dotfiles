@@ -739,3 +739,19 @@ STUB
   [ "$status" -eq 0 ]
   [[ "$output" == *"1.5 GB"* ]] || false
 }
+
+# =============================================================================
+# Default project folders
+# =============================================================================
+
+@test "devclean looks in ~/Development and ~/dev by default" {
+  unset DEVCLEAN_PROJECT_DIRS
+  mkdir -p "${HOME}/Development" "${HOME}/dev/App"
+  touch "${HOME}/dev/App/Package.swift"
+  fill "${HOME}/dev/App/.build"
+
+  run "$DEVCLEAN"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Project folders: ~/Development, ~/dev (not found: ~/Developer, ~/Documents/Workspace, ~/Projects)"* ]] || false
+  [[ "$output" == *"SwiftPM .build folders (1)"* ]] || false
+}
