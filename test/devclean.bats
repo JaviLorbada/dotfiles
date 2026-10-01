@@ -675,3 +675,50 @@ make_device_support() {
   [ ! -e "$ds/iPhone15,2 27.0 (24A5264n)" ]
   [ -d "$ds/iPhone15,2 27.0 (24A435)" ]
 }
+
+# =============================================================================
+# DerivedData breakdown
+# =============================================================================
+
+# Creates a DerivedData project folder:
+# make_derived_data <folder> <workspace path> <last accessed, ISO 8601>
+make_derived_data() {
+  fill "$1"
+  printf '<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0"><dict><key>LastAccessedDate</key><date>%s</date><key>WorkspacePath</key><string>%s</string></dict></plist>\n' \
+    "$3" "$2" > "$1/info.plist"
+}
+
+@test "devclean breaks DerivedData down into shared caches and projects" {
+  local dd="${HOME}/${DERIVED_DATA_PATH}"
+  fill "$dd/CompilationCache.noindex"
+  fill "$dd/ModuleCache.noindex"
+  fill "$dd/SymbolCache.noindex"
+  mkdir -p "${PROJECTS}/App/App.xcodeproj"
+  make_derived_data "$dd/App-abcdefghijklmnopqrstuvwxyz" "${PROJECTS}/App/App.xcodeproj" 2026-09-30T10:00:00Z
+  make_derived_data "$dd/Old-bcdefghijklmnopqrstuvwxyza" "${PROJECTS}/Old/Old.xcodeproj" 2026-03-02T10:00:00Z
+
+  run "$DEVCLEAN"
+  [ "$status" -eq 0 ]
+  grep -qE '^ {21}Compilation cache, all projects +[0-9]' <<< "$output"
+  grep -qE '^ {21}Module cache, all projects +[0-9]' <<< "$output"
+  grep -qE '^ {21}App/App +built 2026-09-30 +[0-9]' <<< "$output"
+  grep -qE '^ {21}Old/Old +project gone +[0-9]' <<< "$output"
+  grep -qE '^ {21}Other +[0-9]' <<< "$output"
+  [[ "$output" == *"Each part comes back as you build"* ]] || false
+  [ -d "$dd/App-abcdefghijklmnopqrstuvwxyz" ]
+}
+
+@test "devclean shows the five biggest DerivedData projects and sums the rest" {
+  local dd="${HOME}/${DERIVED_DATA_PATH}" n
+  for n in 1 2 3 4 5 6 7; do
+    mkdir -p "${PROJECTS}/P${n}/P${n}.xcodeproj"
+    make_derived_data "$dd/P${n}-abcdefghijklmnopqrstuvwxyz" "${PROJECTS}/P${n}/P${n}.xcodeproj" 2026-09-30T10:00:00Z
+  done
+  dd if=/dev/zero of="$dd/P7-abcdefghijklmnopqrstuvwxyz/big" bs=1024 count=2048 2>/dev/null
+
+  run "$DEVCLEAN"
+  [ "$status" -eq 0 ]
+  grep -qE '^ {21}P7/P7 +built 2026-09-30 +2 MB$' <<< "$output"
+  grep -qE '^ {21}2 more projects +[0-9]' <<< "$output"
+  [ "$(grep -cE '^ {21}P[0-9]/P[0-9] ' <<< "$output")" -eq 5 ]
+}

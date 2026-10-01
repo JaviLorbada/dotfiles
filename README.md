@@ -174,6 +174,8 @@ Xcode, simulators and package managers quietly fill the disk: the Xcode compilat
 
 It covers Xcode DerivedData (including the compilation cache), simulators whose iOS version is gone, the physical device install cache, Device Support symbols except the newest version for each device model (Xcode copies them again when that device connects), SwiftPM's cache and `.build` folders, Xcode `build` folders left by `xcodebuild`, Gradle `build` folders, npm, Homebrew, and CocoaPods/Carthage/Sourcery/Playwright/JetBrains Toolbox caches. It never touches Archives, working simulators, simulator runtimes, build folders tracked in git, or anything outside your home folder.
 
+DerivedData is broken down into the shared compilation and module caches and each project's folder, with its last build date. Projects that no longer exist are flagged, since their folders never come back.
+
 The report also lists what `--run` never deletes but is worth a look: installed Xcodes (with the selected one marked, since each Xcode keeps its own compilation cache) and simulator runtimes (size, last used, simulator count). Runtimes unused for 90+ days or without simulators are flagged with the command to remove them yourself.
 
 A `build` folder only counts when it's clearly build output: next to a Gradle build file, or next to an Xcode project or `Package.swift` *and* holding Xcode's build output (`XCBuildData`, `*.build`, `*-iphoneos`...). Other folders that happen to be called `build` are left alone.

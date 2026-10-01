@@ -55,6 +55,10 @@ Items:
   tool-caches      CocoaPods, Carthage, Sourcery, Playwright and
                    JetBrains Toolbox caches
 
+The report breaks DerivedData down into the shared compilation and module
+caches and each project's folder, with its last build date, flagging
+projects that no longer exist.
+
 The report also lists installed Xcodes and simulator runtimes, and flags
 runtimes unused for 90+ days. devclean never deletes those; it shows how
 to remove them yourself.
@@ -487,6 +491,89 @@ paths_kb() {
   echo "$total"
 }
 
+# One tab-separated row per entry in DerivedData folder $1: size in KB, kind
+# (compilation, module, project or other), project name and, for projects,
+# "built <date>" or "project gone". Unused fields are "-".
+derived_data_parts() {
+  local entry kb name workspace status
+  for entry in "$1"/* "$1"/.[!.]*; do
+    if [[ ! -e "$entry" && ! -L "$entry" ]]; then
+      continue
+    fi
+    kb="$(du -sk "$entry" 2>/dev/null | awk '{ print $1 }')" || true
+    case "$(basename "$entry")" in
+      CompilationCache.noindex)
+        printf '%s\tcompilation\t-\t-\n' "${kb:-0}"
+        continue
+        ;;
+      ModuleCache.noindex)
+        printf '%s\tmodule\t-\t-\n' "${kb:-0}"
+        continue
+        ;;
+      *) ;;
+    esac
+
+    workspace="$(plutil -extract WorkspacePath raw -o - "$entry/info.plist" 2>/dev/null)" || workspace=""
+    if [[ -z "$workspace" ]]; then
+      printf '%s\tother\t-\t-\n' "${kb:-0}"
+      continue
+    fi
+    if [[ -e "$workspace" ]]; then
+      status="$(plutil -extract LastAccessedDate raw -o - "$entry/info.plist" 2>/dev/null | cut -c1-10)" || true
+      status="built ${status:-$(stat -f %Sm -t %Y-%m-%d "$entry")}"
+    else
+      status="project gone"
+    fi
+    workspace="${workspace%/}"
+    name="$(basename "$workspace")"
+    name="${name%.xcodeproj}"
+    name="$(basename "$(dirname "$workspace")")/${name%.xcworkspace}"
+    printf '%s\tproject\t%s\t%s\n' "${kb:-0}" "$name" "$status"
+  done
+}
+
+# Prints the DerivedData breakdown under its row: the shared caches first,
+# then the biggest project folders and a summary of the rest.
+print_derived_data_parts() {
+  local parts="$1" kb kind name status projects=0
+  local kb_compilation=0 kb_module=0 kb_rest=0 kb_other=0
+
+  sort -t "$(printf '\t')" -k1,1nr "$parts" > "$parts.sorted"
+  : > "$parts.projects"
+  while IFS=$'\t' read -r kb kind name status; do
+    case "$kind" in
+      compilation) kb_compilation=$((kb_compilation + kb)) ;;
+      module) kb_module=$((kb_module + kb)) ;;
+      project)
+        projects=$((projects + 1))
+        if [[ "$projects" -le 5 ]]; then
+          printf '%21s%-21s %-16s %8s\n' "" "${name:0:21}" "$status" "$(human "$kb")" >> "$parts.projects"
+        else
+          kb_rest=$((kb_rest + kb))
+        fi
+        ;;
+      *) kb_other=$((kb_other + kb)) ;;
+    esac
+  done < "$parts.sorted"
+
+  if [[ "$kb_compilation" -gt 0 ]]; then
+    printf '%21s%-38s %8s\n' "" "Compilation cache, all projects" "$(human "$kb_compilation")"
+  fi
+  if [[ "$kb_module" -gt 0 ]]; then
+    printf '%21s%-38s %8s\n' "" "Module cache, all projects" "$(human "$kb_module")"
+  fi
+  cat "$parts.projects"
+  if [[ "$projects" -gt 6 ]]; then
+    printf '%21s%-38s %8s\n' "" "$((projects - 5)) more projects" "$(human "$kb_rest")"
+  elif [[ "$projects" -eq 6 ]]; then
+    printf '%21s%-38s %8s\n' "" "1 more project" "$(human "$kb_rest")"
+  fi
+  if [[ "$kb_other" -gt 0 ]]; then
+    printf '%21s%-38s %8s\n' "" "Other" "$(human "$kb_other")"
+  fi
+  printf '  %-16s %s\n' "" "${dim}Each part comes back as you build; projects you no longer build stay gone.${reset}"
+}
+
 # Size in KB that `brew cleanup --prune=all` would free, from its dry run.
 homebrew_kb() {
   if ! command -v brew >/dev/null 2>&1; then
@@ -735,6 +822,10 @@ main() {
     collect "$id" | sort -u > "$list"
     if [[ "$id" == "homebrew" ]]; then
       kb="$(homebrew_kb)"
+    elif [[ "$id" == "derived-data" && -s "$list" ]]; then
+      # Measured folder by folder, once, for both the total and the breakdown
+      derived_data_parts "$(head -n 1 "$list")" > "$work_dir/derived-data.parts"
+      kb="$(awk -F '\t' '{ total += $1 } END { print total + 0 }' "$work_dir/derived-data.parts")"
     else
       kb="$(paths_kb < "$list")"
     fi
@@ -747,6 +838,9 @@ main() {
     fi
     printf '  %-16s %-38s %10s\n' "$id" "$(label "$id" "$(count_lines "$list")")" "$size"
     printf '  %-16s %s\n' "" "${dim}$(where "$id")${reset}"
+    if [[ "$id" == "derived-data" && "$kb" -gt 0 ]]; then
+      print_derived_data_parts "$work_dir/derived-data.parts"
+    fi
   done
 
   printf '  %s\n' "------------------------------------------------------------------"
