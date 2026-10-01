@@ -7,6 +7,7 @@
 
 set -euo pipefail
 unset CDPATH # Keeps every cd below going exactly where it says
+export LC_ALL=C # Numbers like "1.5GB" parse and print the same in every locale
 
 items="derived-data simulators device-installs device-support swiftpm-cache swiftpm-builds xcode-builds gradle-builds npm-cache homebrew tool-caches"
 

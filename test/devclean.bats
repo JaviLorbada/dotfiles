@@ -722,3 +722,20 @@ make_derived_data() {
   grep -qE '^ {21}2 more projects +[0-9]' <<< "$output"
   [ "$(grep -cE '^ {21}P[0-9]/P[0-9] ' <<< "$output")" -eq 5 ]
 }
+
+# =============================================================================
+# Locale
+# =============================================================================
+
+@test "devclean reads and prints sizes the same in a comma-decimal locale" {
+  export LC_ALL=es_ES.UTF-8
+  stub brew <<'STUB'
+case "$*" in
+  *--dry-run*) echo "==> This operation would free approximately 1.5GB of disk space." ;;
+esac
+STUB
+
+  run "$DEVCLEAN"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"1.5 GB"* ]] || false
+}
