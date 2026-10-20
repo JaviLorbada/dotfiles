@@ -1,5 +1,6 @@
 {
   "env": {
+    "ANTHROPIC_MODEL": "opus",
     "_ZO_DOCTOR": "0"
   },
   "permissions": {
